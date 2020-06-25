@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link NoopSpanProcessorTest}. */
 @RunWith(JUnit4.class)
 public class NoopSpanProcessorTest {
-  @Mock private ReadableSpan readableSpan;
+  @Mock private ReadWriteSpan readableSpan;
 
   @Before
   public void setUp() {

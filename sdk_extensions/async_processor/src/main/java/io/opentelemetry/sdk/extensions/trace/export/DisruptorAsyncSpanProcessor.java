@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
-import io.opentelemetry.sdk.trace.ReadableSpan;
+import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
@@ -64,7 +64,7 @@ public final class DisruptorAsyncSpanProcessor implements SpanProcessor {
   // TODO: Add metrics for dropped spans.
 
   @Override
-  public void onStart(ReadableSpan span) {
+  public void onStart(ReadWriteSpan span) {
     if (!startRequired) {
       return;
     }
@@ -77,7 +77,7 @@ public final class DisruptorAsyncSpanProcessor implements SpanProcessor {
   }
 
   @Override
-  public void onEnd(ReadableSpan span) {
+  public void onEnd(ReadWriteSpan span) {
     if (!endRequired) {
       return;
     }

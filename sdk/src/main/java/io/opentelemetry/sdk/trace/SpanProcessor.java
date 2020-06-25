@@ -32,7 +32,7 @@ public interface SpanProcessor {
    *
    * @param span the {@code ReadableSpan} that just started.
    */
-  void onStart(ReadableSpan span);
+  void onStart(ReadWriteSpan span);
 
   /**
    * Returns {@code true} if this {@link SpanProcessor} requires start events.
@@ -50,7 +50,7 @@ public interface SpanProcessor {
    *
    * @param span the {@code ReadableSpan} that just ended.
    */
-  void onEnd(ReadableSpan span);
+  void onEnd(ReadWriteSpan span);
 
   /**
    * Returns {@code true} if this {@link SpanProcessor} requires end events.

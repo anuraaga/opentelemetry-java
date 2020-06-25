@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
 import io.opentelemetry.sdk.trace.MultiSpanProcessor;
-import io.opentelemetry.sdk.trace.ReadableSpan;
+import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class DisruptorAsyncSpanProcessorTest {
   private static final boolean REQUIRED = true;
   private static final boolean NOT_REQUIRED = false;
 
-  @Mock private ReadableSpan readableSpan;
+  @Mock private ReadWriteSpan readableSpan;
 
   @Before
   public void setUp() {
@@ -65,7 +65,7 @@ public class DisruptorAsyncSpanProcessorTest {
     }
 
     @Override
-    public void onStart(ReadableSpan span) {
+    public void onStart(ReadWriteSpan span) {
       counterOnStart.incrementAndGet();
     }
 
@@ -75,7 +75,7 @@ public class DisruptorAsyncSpanProcessorTest {
     }
 
     @Override
-    public void onEnd(ReadableSpan span) {
+    public void onEnd(ReadWriteSpan span) {
       counterOnEnd.incrementAndGet();
       counterEndSpans.incrementAndGet();
     }

@@ -17,8 +17,11 @@
 package io.opentelemetry.sdk.trace;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opentelemetry.common.AttributeValue.stringAttributeValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -38,7 +41,7 @@ import org.mockito.MockitoAnnotations;
 public class MultiSpanProcessorTest {
   @Mock private SpanProcessor spanProcessor1;
   @Mock private SpanProcessor spanProcessor2;
-  @Mock private ReadableSpan readableSpan;
+  @Mock private ReadWriteSpan span;
 
   @Before
   public void setUp() {
@@ -52,8 +55,8 @@ public class MultiSpanProcessorTest {
   @Test
   public void empty() {
     SpanProcessor multiSpanProcessor = MultiSpanProcessor.create(Collections.emptyList());
-    multiSpanProcessor.onStart(readableSpan);
-    multiSpanProcessor.onEnd(readableSpan);
+    multiSpanProcessor.onStart(span);
+    multiSpanProcessor.onEnd(span);
     multiSpanProcessor.shutdown();
   }
 
@@ -61,11 +64,11 @@ public class MultiSpanProcessorTest {
   public void oneSpanProcessor() {
     SpanProcessor multiSpanProcessor =
         MultiSpanProcessor.create(Collections.singletonList(spanProcessor1));
-    multiSpanProcessor.onStart(readableSpan);
-    verify(spanProcessor1).onStart(same(readableSpan));
+    multiSpanProcessor.onStart(span);
+    verify(spanProcessor1).onStart(same(span));
 
-    multiSpanProcessor.onEnd(readableSpan);
-    verify(spanProcessor1).onEnd(same(readableSpan));
+    multiSpanProcessor.onEnd(span);
+    verify(spanProcessor1).onEnd(same(span));
 
     multiSpanProcessor.forceFlush();
     verify(spanProcessor1).forceFlush();
@@ -87,10 +90,10 @@ public class MultiSpanProcessorTest {
     assertThat(multiSpanProcessor.isStartRequired()).isFalse();
     assertThat(multiSpanProcessor.isEndRequired()).isFalse();
 
-    multiSpanProcessor.onStart(readableSpan);
+    multiSpanProcessor.onStart(span);
     verifyNoMoreInteractions(spanProcessor1);
 
-    multiSpanProcessor.onEnd(readableSpan);
+    multiSpanProcessor.onEnd(span);
     verifyNoMoreInteractions(spanProcessor1);
 
     multiSpanProcessor.forceFlush();
@@ -104,13 +107,13 @@ public class MultiSpanProcessorTest {
   public void twoSpanProcessor() {
     SpanProcessor multiSpanProcessor =
         MultiSpanProcessor.create(Arrays.asList(spanProcessor1, spanProcessor2));
-    multiSpanProcessor.onStart(readableSpan);
-    verify(spanProcessor1).onStart(same(readableSpan));
-    verify(spanProcessor2).onStart(same(readableSpan));
+    multiSpanProcessor.onStart(span);
+    verify(spanProcessor1).onStart(same(span));
+    verify(spanProcessor2).onStart(same(span));
 
-    multiSpanProcessor.onEnd(readableSpan);
-    verify(spanProcessor1).onEnd(same(readableSpan));
-    verify(spanProcessor2).onEnd(same(readableSpan));
+    multiSpanProcessor.onEnd(span);
+    verify(spanProcessor1).onEnd(same(span));
+    verify(spanProcessor2).onEnd(same(span));
 
     multiSpanProcessor.forceFlush();
     verify(spanProcessor1).forceFlush();
@@ -131,13 +134,13 @@ public class MultiSpanProcessorTest {
     assertThat(multiSpanProcessor.isStartRequired()).isTrue();
     assertThat(multiSpanProcessor.isEndRequired()).isTrue();
 
-    multiSpanProcessor.onStart(readableSpan);
-    verify(spanProcessor1).onStart(same(readableSpan));
-    verify(spanProcessor2, times(0)).onStart(any(ReadableSpan.class));
+    multiSpanProcessor.onStart(span);
+    verify(spanProcessor1).onStart(same(span));
+    verify(spanProcessor2, times(0)).onStart(any(ReadWriteSpan.class));
 
-    multiSpanProcessor.onEnd(readableSpan);
-    verify(spanProcessor1, times(0)).onEnd(any(ReadableSpan.class));
-    verify(spanProcessor2).onEnd(same(readableSpan));
+    multiSpanProcessor.onEnd(span);
+    verify(spanProcessor1, times(0)).onEnd(any(ReadWriteSpan.class));
+    verify(spanProcessor2).onEnd(same(span));
 
     multiSpanProcessor.forceFlush();
     verify(spanProcessor1).forceFlush();
@@ -146,5 +149,61 @@ public class MultiSpanProcessorTest {
     multiSpanProcessor.shutdown();
     verify(spanProcessor1).shutdown();
     verify(spanProcessor2).shutdown();
+  }
+
+  @Test
+  public void modifyingSpanProcessor() {
+    // Demonstrate span processors that modify the span.
+
+    doAnswer(
+            invocation -> {
+              ReadWriteSpan span = invocation.getArgument(0);
+              span.setAttribute("animal", "cat");
+              return null;
+            })
+        .when(spanProcessor1)
+        .onStart(any());
+    doAnswer(
+            invocation -> {
+              ReadWriteSpan span = invocation.getArgument(0);
+              span.setAttribute("cookie", "monster");
+              return null;
+            })
+        .when(spanProcessor1)
+        .onEnd(any());
+    doAnswer(
+            invocation -> {
+              ReadWriteSpan span = invocation.getArgument(0);
+              if (span.getAttributes().get("animal").getStringValue().equals("cat")) {
+                span.setAttribute("food", "catfood");
+              }
+              return null;
+            })
+        .when(spanProcessor2)
+        .onEnd(any());
+
+    AttributesMap attributesMap = new AttributesMap(10);
+    when(span.getAttributes()).thenReturn(attributesMap);
+    doAnswer(
+            invocation -> {
+              String key = invocation.getArgument(0);
+              String value = invocation.getArgument(1);
+              attributesMap.put(key, stringAttributeValue(value));
+              return null;
+            })
+        .when(span)
+        .setAttribute(anyString(), anyString());
+
+    SpanProcessor multiSpanProcessor =
+        MultiSpanProcessor.create(Arrays.asList(spanProcessor1, spanProcessor2));
+
+    multiSpanProcessor.onStart(span);
+    multiSpanProcessor.onEnd(span);
+
+    assertThat(attributesMap)
+        .containsExactly(
+            "animal", stringAttributeValue("cat"),
+            "cookie", stringAttributeValue("monster"),
+            "food", stringAttributeValue("catfood"));
   }
 }

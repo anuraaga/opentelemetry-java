@@ -16,34 +16,7 @@
 
 package io.opentelemetry.sdk.trace;
 
-final class NoopSpanProcessor implements SpanProcessor {
-  private static final NoopSpanProcessor INSTANCE = new NoopSpanProcessor();
+import io.opentelemetry.trace.Span;
 
-  static SpanProcessor getInstance() {
-    return INSTANCE;
-  }
-
-  @Override
-  public void onStart(ReadWriteSpan span) {}
-
-  @Override
-  public boolean isStartRequired() {
-    return false;
-  }
-
-  @Override
-  public void onEnd(ReadWriteSpan span) {}
-
-  @Override
-  public boolean isEndRequired() {
-    return false;
-  }
-
-  @Override
-  public void shutdown() {}
-
-  @Override
-  public void forceFlush() {}
-
-  private NoopSpanProcessor() {}
-}
+/** A fully accessible span, which can read all recorded information or write more. */
+public interface ReadWriteSpan extends Span, ReadableSpan {}

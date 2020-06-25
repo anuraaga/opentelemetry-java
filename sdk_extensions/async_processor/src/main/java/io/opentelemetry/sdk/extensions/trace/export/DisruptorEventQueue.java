@@ -24,7 +24,7 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opentelemetry.sdk.common.DaemonThreadFactory;
-import io.opentelemetry.sdk.trace.ReadableSpan;
+import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,15 +42,15 @@ final class DisruptorEventQueue {
   private static final Logger logger = Logger.getLogger(DisruptorEventQueue.class.getName());
   private static final String WORKER_THREAD_NAME = "DisruptorEventQueue_WorkerThread";
   private static final EventTranslatorThreeArg<
-          DisruptorEvent, EventType, ReadableSpan, CountDownLatch>
+          DisruptorEvent, EventType, ReadWriteSpan, CountDownLatch>
       TRANSLATOR_THREE_ARG =
-          new EventTranslatorThreeArg<DisruptorEvent, EventType, ReadableSpan, CountDownLatch>() {
+          new EventTranslatorThreeArg<DisruptorEvent, EventType, ReadWriteSpan, CountDownLatch>() {
             @Override
             public void translateTo(
                 DisruptorEvent event,
                 long sequence,
                 EventType arg0,
-                ReadableSpan arg1,
+                ReadWriteSpan arg1,
                 CountDownLatch arg2) {
               event.setEntry(arg0, arg1, arg2);
             }
@@ -99,7 +99,7 @@ final class DisruptorEventQueue {
     this.blocking = blocking;
   }
 
-  void enqueueStartEvent(ReadableSpan span) {
+  void enqueueStartEvent(ReadWriteSpan span) {
     if (isShutdown) {
       if (!loggedShutdownMessage.getAndSet(true)) {
         logger.info("Attempted to enqueue start event after Disruptor shutdown.");
@@ -109,7 +109,7 @@ final class DisruptorEventQueue {
     enqueue(EventType.ON_START, span, null);
   }
 
-  void enqueueEndEvent(ReadableSpan span) {
+  void enqueueEndEvent(ReadWriteSpan span) {
     if (isShutdown) {
       if (!loggedShutdownMessage.getAndSet(true)) {
         logger.info("Attempted to enqueue end event after Disruptor shutdown.");
@@ -156,7 +156,7 @@ final class DisruptorEventQueue {
   }
 
   // Enqueues an event on the {@link DisruptorEventQueue}.
-  private void enqueue(EventType eventType, ReadableSpan readableSpan, CountDownLatch flushLatch) {
+  private void enqueue(EventType eventType, ReadWriteSpan readableSpan, CountDownLatch flushLatch) {
     if (blocking) {
       ringBuffer.publishEvent(TRANSLATOR_THREE_ARG, eventType, readableSpan, flushLatch);
     } else {
@@ -167,13 +167,13 @@ final class DisruptorEventQueue {
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
   private static final class DisruptorEvent {
-    @Nullable private ReadableSpan readableSpan = null;
+    @Nullable private ReadWriteSpan readableSpan = null;
     @Nullable private EventType eventType = null;
     @Nullable private CountDownLatch waitingCounter = null;
 
     void setEntry(
         @Nullable EventType eventType,
-        @Nullable ReadableSpan readableSpan,
+        @Nullable ReadWriteSpan readableSpan,
         @Nullable CountDownLatch flushLatch) {
       this.readableSpan = readableSpan;
       this.eventType = eventType;
@@ -181,7 +181,7 @@ final class DisruptorEventQueue {
     }
 
     @Nullable
-    ReadableSpan getReadableSpan() {
+    ReadWriteSpan getReadableSpan() {
       return readableSpan;
     }
 
@@ -206,7 +206,7 @@ final class DisruptorEventQueue {
 
     @Override
     public void onEvent(DisruptorEvent event, long sequence, boolean endOfBatch) {
-      final ReadableSpan readableSpan = event.getReadableSpan();
+      final ReadWriteSpan readableSpan = event.getReadableSpan();
       final EventType eventType = event.getEventType();
       if (eventType == null) {
         logger.warning("Disruptor enqueued null element type.");

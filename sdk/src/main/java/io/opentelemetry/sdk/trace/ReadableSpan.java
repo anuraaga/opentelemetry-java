@@ -16,6 +16,8 @@
 
 package io.opentelemetry.sdk.trace;
 
+import io.opentelemetry.common.Attributes;
+import io.opentelemetry.common.ReadableAttributes;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.trace.Span;
@@ -61,6 +63,11 @@ public interface ReadableSpan {
    *     library
    */
   InstrumentationLibraryInfo getInstrumentationLibraryInfo();
+
+  /** Returns the {@link Attributes} currently set in this span. */
+  ReadableAttributes getAttributes();
+
+  // TODO(anuraaga): Add more accessors here since this is a ReadableSpan
 
   /**
    * Returns whether this Span has already been ended.

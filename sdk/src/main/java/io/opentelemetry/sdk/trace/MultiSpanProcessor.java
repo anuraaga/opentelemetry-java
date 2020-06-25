@@ -42,7 +42,7 @@ public final class MultiSpanProcessor implements SpanProcessor {
   }
 
   @Override
-  public void onStart(ReadableSpan readableSpan) {
+  public void onStart(ReadWriteSpan readableSpan) {
     for (SpanProcessor spanProcessor : spanProcessorsStart) {
       spanProcessor.onStart(readableSpan);
     }
@@ -54,7 +54,7 @@ public final class MultiSpanProcessor implements SpanProcessor {
   }
 
   @Override
-  public void onEnd(ReadableSpan readableSpan) {
+  public void onEnd(ReadWriteSpan readableSpan) {
     for (SpanProcessor spanProcessor : spanProcessorsEnd) {
       spanProcessor.onEnd(readableSpan);
     }
