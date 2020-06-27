@@ -19,10 +19,13 @@ package io.opentelemetry.exporters.otlp;
 import io.opentelemetry.common.AttributeValue;
 import io.opentelemetry.common.Attributes;
 import io.opentelemetry.common.ReadableKeyValuePairs.KeyValueConsumer;
+import io.opentelemetry.proto.trace.v1.Exception;
 import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Span.SpanKind;
+import io.opentelemetry.proto.trace.v1.StackTrace;
+import io.opentelemetry.proto.trace.v1.StackTrace.Frame;
 import io.opentelemetry.proto.trace.v1.Status;
 import io.opentelemetry.proto.trace.v1.Status.StatusCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
@@ -31,13 +34,14 @@ import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Event;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
+import io.opentelemetry.trace.ExceptionDescription;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class SpanAdapter {
+public final class SpanAdapter {
   static List<ResourceSpans> toProtoResourceSpans(Collection<SpanData> spanDataList) {
     Map<Resource, Map<InstrumentationLibraryInfo, List<Span>>> resourceAndLibraryMap =
         groupByResourceAndLibrary(spanDataList);
@@ -178,6 +182,37 @@ final class SpanAdapter {
       builder.setMessage(status.getDescription());
     }
     return builder.build();
+  }
+
+  public static Exception toExceptionProto(ExceptionDescription exception) {
+    Exception.Builder builder = Exception.newBuilder()
+        .setType(exception.getType())
+        .setStack(toStackTraceProto(exception.getStack()));
+    if (exception.getMessage() != null) {
+      builder.setMessage(exception.getMessage());
+    }
+    if (exception.getCause() != null) {
+      builder.setCause(toExceptionProto(exception.getCause()));
+    }
+    return builder.build();
+  }
+
+  static StackTrace toStackTraceProto(io.opentelemetry.trace.StackTrace stackTrace) {
+    StackTrace.Builder builder = StackTrace.newBuilder()
+        .setNumFrames(stackTrace.getNumFrames());
+    for (io.opentelemetry.trace.StackTrace.Frame frame : stackTrace.getFrames()) {
+      builder.addFrame(toStackTraceFrameProto(frame));
+    }
+    return builder.build();
+  }
+
+  static StackTrace.Frame toStackTraceFrameProto(io.opentelemetry.trace.StackTrace.Frame frame) {
+    return Frame.newBuilder()
+        .setFunctionName(frame.getFunctionName())
+        .setFileName(frame.getFileName())
+        .setLineNumber(frame.getLineNumber())
+        .setColumnNumber(frame.getColumnNumber())
+        .build();
   }
 
   private SpanAdapter() {}
