@@ -19,6 +19,7 @@ package io.opentelemetry.sdk.trace.export;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.doThrow;
 
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.common.export.ConfigBuilderTest.ConfigTester;
 import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.Samplers;
@@ -304,18 +305,16 @@ class BatchSpanProcessorTest {
 
   @Test
   @Timeout(5)
-  public void exporterTimesOut() throws Exception {
-    final CountDownLatch interruptMarker = new CountDownLatch(1);
+  public void exporterTimesOut() {
     WaitingSpanExporter waitingSpanExporter =
         new WaitingSpanExporter(1) {
           @Override
-          public ResultCode export(Collection<SpanData> spans) {
-            ResultCode result = super.export(spans);
+          public CompletableResultCode export(Collection<SpanData> spans) {
+            CompletableResultCode result = super.export(spans);
             try {
-              // sleep longer than the configured timout of 100ms
+              // sleep longer than the configured timeout of 100ms
               Thread.sleep(1000);
-            } catch (InterruptedException e) {
-              interruptMarker.countDown();
+            } catch (InterruptedException ignored) {
             }
             return result;
           }
@@ -334,10 +333,6 @@ class BatchSpanProcessorTest {
     ReadableSpan span = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = waitingSpanExporter.waitForExport();
     assertThat(exported).containsExactly(span.toSpanData());
-
-    // since the interrupt happens outside the execution of the test method, we'll block to make
-    // sure that the thread was actually interrupted due to the timeout.
-    interruptMarker.await();
   }
 
   @Test
@@ -428,7 +423,7 @@ class BatchSpanProcessorTest {
     State state = State.WAIT_TO_BLOCK;
 
     @Override
-    public ResultCode export(Collection<SpanData> spanDataList) {
+    public CompletableResultCode export(Collection<SpanData> spanDataList) {
       synchronized (monitor) {
         while (state != State.UNBLOCKED) {
           try {
@@ -441,12 +436,12 @@ class BatchSpanProcessorTest {
           }
         }
       }
-      return ResultCode.SUCCESS;
+      return CompletableResultCode.ofSuccess();
     }
 
     @Override
-    public ResultCode flush() {
-      return ResultCode.SUCCESS;
+    public CompletableResultCode flush() {
+      return CompletableResultCode.ofSuccess();
     }
 
     private void waitUntilIsBlocked() {
@@ -514,17 +509,17 @@ class BatchSpanProcessorTest {
     }
 
     @Override
-    public ResultCode export(Collection<SpanData> spans) {
+    public CompletableResultCode export(Collection<SpanData> spans) {
       this.spanDataList.addAll(spans);
       for (int i = 0; i < spans.size(); i++) {
         countDownLatch.countDown();
       }
-      return ResultCode.SUCCESS;
+      return CompletableResultCode.ofSuccess();
     }
 
     @Override
-    public ResultCode flush() {
-      return ResultCode.SUCCESS;
+    public CompletableResultCode flush() {
+      return CompletableResultCode.ofSuccess();
     }
 
     @Override

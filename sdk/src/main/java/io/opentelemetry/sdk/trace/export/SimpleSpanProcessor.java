@@ -17,6 +17,7 @@
 package io.opentelemetry.sdk.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
 import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +56,7 @@ public final class SimpleSpanProcessor implements SpanProcessor {
 
   private final SpanExporter spanExporter;
   private final boolean sampled;
+  private final AtomicBoolean exportAvailable = new AtomicBoolean(true);
 
   private SimpleSpanProcessor(SpanExporter spanExporter, boolean sampled) {
     this.spanExporter = Objects.requireNonNull(spanExporter, "spanExporter");
@@ -71,15 +74,30 @@ public final class SimpleSpanProcessor implements SpanProcessor {
   }
 
   @Override
+  @SuppressWarnings("BooleanParameter")
   public void onEnd(ReadableSpan span) {
-    if (sampled && !span.getSpanContext().getTraceFlags().isSampled()) {
-      return;
-    }
-    try {
-      List<SpanData> spans = Collections.singletonList(span.toSpanData());
-      spanExporter.export(spans);
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "Exception thrown by the export.", e);
+    if (exportAvailable.compareAndSet(true, false)) {
+      if (sampled && !span.getSpanContext().getTraceFlags().isSampled()) {
+        return;
+      }
+      try {
+        List<SpanData> spans = Collections.singletonList(span.toSpanData());
+        final CompletableResultCode result = spanExporter.export(spans);
+        result.thenRun(
+            new Runnable() {
+              @Override
+              public void run() {
+                if (!result.isSuccess()) {
+                  logger.log(Level.FINE, "Exporter failed");
+                }
+                exportAvailable.set(true);
+              }
+            });
+      } catch (Exception e) {
+        logger.log(Level.WARNING, "Exporter threw an Exception", e);
+      }
+    } else {
+      logger.log(Level.FINE, "Exporter busy. Dropping spans.");
     }
   }
 

@@ -25,6 +25,7 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -97,7 +98,7 @@ public final class OtlpGrpcSpanExporter implements SpanExporter {
    * @return the result of the operation
    */
   @Override
-  public ResultCode export(Collection<SpanData> spans) {
+  public CompletableResultCode export(Collection<SpanData> spans) {
     ExportTraceServiceRequest exportTraceServiceRequest =
         ExportTraceServiceRequest.newBuilder()
             .addAllResourceSpans(SpanAdapter.toProtoResourceSpans(spans))
@@ -112,10 +113,10 @@ public final class OtlpGrpcSpanExporter implements SpanExporter {
       // for now, there's nothing to check in the response object
       // noinspection ResultOfMethodCallIgnored
       stub.export(exportTraceServiceRequest);
-      return ResultCode.SUCCESS;
+      return CompletableResultCode.ofSuccess();
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Failed to export spans", e);
-      return ResultCode.FAILURE;
+      return CompletableResultCode.ofFailure();
     }
   }
 
@@ -125,8 +126,8 @@ public final class OtlpGrpcSpanExporter implements SpanExporter {
    * @return always Success
    */
   @Override
-  public ResultCode flush() {
-    return ResultCode.SUCCESS;
+  public CompletableResultCode flush() {
+    return CompletableResultCode.ofSuccess();
   }
 
   /**

@@ -16,6 +16,7 @@
 
 package io.opentelemetry.sdk.metrics.export;
 
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import java.util.Collection;
 
@@ -30,35 +31,21 @@ import java.util.Collection;
 public interface MetricExporter {
 
   /**
-   * The possible results for the export method.
-   *
-   * @since 0.1.0
-   */
-  // TODO: extract this enum and unify it with SpanExporter.ResultCode
-  enum ResultCode {
-    /** The export operation finished successfully. */
-    SUCCESS,
-
-    /** The export operation finished with an error. */
-    FAILURE
-  }
-
-  /**
    * Exports the collection of given {@link MetricData}.
    *
    * @param metrics the collection of {@link MetricData} to be exported.
-   * @return the result of the export.
+   * @return the result of the export, which is often an asynchronous operation.
    * @since 0.1.0
    */
-  ResultCode export(Collection<MetricData> metrics);
+  CompletableResultCode export(Collection<MetricData> metrics);
 
   /**
    * Exports the collection of {@link MetricData} that have not yet been exported.
    *
-   * @return the result of the flush.
+   * @return the result of the flush, which is often an asynchronous operation.
    * @since 0.4.0
    */
-  ResultCode flush();
+  CompletableResultCode flush();
 
   /** Called when the associated IntervalMetricReader is shutdown. */
   void shutdown();

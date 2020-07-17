@@ -16,6 +16,7 @@
 
 package io.opentelemetry.sdk.trace.export;
 
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import java.util.Collection;
@@ -42,17 +43,17 @@ public interface SpanExporter {
    * Called to export sampled {@code Span}s.
    *
    * @param spans the collection of sampled Spans to be exported.
-   * @return the result of the export.
+   * @return the result of the export, which is often an asynchronous operation.
    */
-  ResultCode export(Collection<SpanData> spans);
+  CompletableResultCode export(Collection<SpanData> spans);
 
   /**
    * Exports the collection of sampled {@code Span}s that have not yet been exported.
    *
-   * @return the result of the flush.
+   * @return the result of the flush, which is often an asynchronous operation.
    * @since 0.4.0
    */
-  ResultCode flush();
+  CompletableResultCode flush();
 
   /**
    * Called when {@link TracerSdkProvider#shutdown()} is called, if this {@code SpanExporter} is

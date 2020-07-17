@@ -19,6 +19,7 @@ package io.opentelemetry.sdk.metrics.export;
 import com.google.auto.value.AutoValue;
 import io.opentelemetry.internal.Utils;
 import io.opentelemetry.sdk.common.DaemonThreadFactory;
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
@@ -199,21 +201,38 @@ public final class IntervalMetricReader {
   private static final class Exporter implements Runnable {
 
     private final InternalState internalState;
+    private final AtomicBoolean exportAvailable = new AtomicBoolean(true);
 
     private Exporter(InternalState internalState) {
       this.internalState = internalState;
     }
 
     @Override
+    @SuppressWarnings("BooleanParameter")
     public void run() {
-      try {
-        List<MetricData> metricsList = new ArrayList<>();
-        for (MetricProducer metricProducer : internalState.getMetricProducers()) {
-          metricsList.addAll(metricProducer.collectAllMetrics());
+      if (exportAvailable.compareAndSet(true, false)) {
+        try {
+          List<MetricData> metricsList = new ArrayList<>();
+          for (MetricProducer metricProducer : internalState.getMetricProducers()) {
+            metricsList.addAll(metricProducer.collectAllMetrics());
+          }
+          final CompletableResultCode result =
+              internalState.getMetricExporter().export(Collections.unmodifiableList(metricsList));
+          result.thenRun(
+              new Runnable() {
+                @Override
+                public void run() {
+                  if (!result.isSuccess()) {
+                    logger.log(Level.FINE, "Exporter failed");
+                  }
+                  exportAvailable.set(true);
+                }
+              });
+        } catch (Exception e) {
+          logger.log(Level.WARNING, "Exporter threw an Exception", e);
         }
-        internalState.getMetricExporter().export(Collections.unmodifiableList(metricsList));
-      } catch (Exception e) {
-        logger.log(Level.WARNING, "Metric Exporter threw an Exception", e);
+      } else {
+        logger.log(Level.FINE, "Exporter busy. Dropping metrics.");
       }
     }
 

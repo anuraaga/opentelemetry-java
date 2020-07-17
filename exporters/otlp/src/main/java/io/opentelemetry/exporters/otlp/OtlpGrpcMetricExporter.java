@@ -25,6 +25,7 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.MetricsServiceGrpc;
+import io.opentelemetry.sdk.common.export.CompletableResultCode;
 import io.opentelemetry.sdk.common.export.ConfigBuilder;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
@@ -89,7 +90,7 @@ public final class OtlpGrpcMetricExporter implements MetricExporter {
    * @return the result of the operation
    */
   @Override
-  public ResultCode export(Collection<MetricData> metrics) {
+  public CompletableResultCode export(Collection<MetricData> metrics) {
     ExportMetricsServiceRequest exportMetricsServiceRequest =
         ExportMetricsServiceRequest.newBuilder()
             .addAllResourceMetrics(MetricAdapter.toProtoResourceMetrics(metrics))
@@ -104,10 +105,10 @@ public final class OtlpGrpcMetricExporter implements MetricExporter {
       // for now, there's nothing to check in the response object
       // noinspection ResultOfMethodCallIgnored
       stub.export(exportMetricsServiceRequest);
-      return ResultCode.SUCCESS;
+      return CompletableResultCode.ofSuccess();
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Failed to export metrics", e);
-      return ResultCode.FAILURE;
+      return CompletableResultCode.ofFailure();
     }
   }
 
@@ -117,8 +118,8 @@ public final class OtlpGrpcMetricExporter implements MetricExporter {
    * @return always Success
    */
   @Override
-  public ResultCode flush() {
-    return ResultCode.SUCCESS;
+  public CompletableResultCode flush() {
+    return CompletableResultCode.ofSuccess();
   }
 
   /**
