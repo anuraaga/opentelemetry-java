@@ -32,7 +32,7 @@ public class CompletableResultCode {
   private Boolean succeeded = null;
 
   @GuardedBy("lock")
-  private final ArrayList<Runnable> actions = new ArrayList<>();
+  private final ArrayList<Runnable> completionActions = new ArrayList<>();
 
   private final Object lock = new Object();
 
@@ -41,7 +41,7 @@ public class CompletableResultCode {
     synchronized (lock) {
       if (succeeded == null) {
         succeeded = true;
-        for (Runnable action : actions) {
+        for (Runnable action : completionActions) {
           action.run();
         }
       }
@@ -54,7 +54,7 @@ public class CompletableResultCode {
     synchronized (lock) {
       if (succeeded == null) {
         succeeded = false;
-        for (Runnable action : actions) {
+        for (Runnable action : completionActions) {
           action.run();
         }
       }
@@ -77,17 +77,15 @@ public class CompletableResultCode {
   /**
    * Perform an action on completion. Actions are guaranteed to be called only once.
    *
-   * <p>There should only be one action for this class instance.
-   *
    * @param action the action to perform
    * @return this completable result so that it may be further composed
    */
-  public CompletableResultCode thenRun(Runnable action) {
+  public CompletableResultCode whenComplete(Runnable action) {
     synchronized (lock) {
       if (succeeded != null) {
         action.run();
       } else {
-        this.actions.add(action);
+        this.completionActions.add(action);
       }
     }
     return this;

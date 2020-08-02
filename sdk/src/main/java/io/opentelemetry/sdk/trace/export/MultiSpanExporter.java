@@ -94,11 +94,11 @@ public final class MultiSpanExporter implements SpanExporter {
       final CompletableResultCode compositeResultCode,
       final CompletableResultCode singleResultCode,
       final CountDownLatch completionsToProcess) {
-    singleResultCode.thenRun(
+    singleResultCode.whenComplete(
         new Runnable() {
           @Override
           public void run() {
-            compositeResultCode.thenRun(
+            compositeResultCode.whenComplete(
                 new Runnable() {
                   @Override
                   public void run() {

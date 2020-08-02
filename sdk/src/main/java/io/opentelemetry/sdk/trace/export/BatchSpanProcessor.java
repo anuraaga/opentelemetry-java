@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,6 +83,8 @@ public final class BatchSpanProcessor implements SpanProcessor {
 
   private static final String WORKER_THREAD_NAME =
       BatchSpanProcessor.class.getSimpleName() + "_WorkerThread";
+  private static final String TIMER_THREAD_NAME =
+      BatchSpanProcessor.class.getSimpleName() + "_TimerThread";
   private final Worker worker;
   private final Thread workerThread;
   private final boolean sampled;
@@ -90,8 +94,15 @@ public final class BatchSpanProcessor implements SpanProcessor {
       boolean sampled,
       long scheduleDelayMillis,
       int maxQueueSize,
-      int maxExportBatchSize) {
-    this.worker = new Worker(spanExporter, scheduleDelayMillis, maxQueueSize, maxExportBatchSize);
+      int maxExportBatchSize,
+      int exporterTimeoutMillis) {
+    this.worker =
+        new Worker(
+            spanExporter,
+            scheduleDelayMillis,
+            maxQueueSize,
+            maxExportBatchSize,
+            exporterTimeoutMillis);
     this.workerThread = new DaemonThreadFactory(WORKER_THREAD_NAME).newThread(worker);
     this.workerThread.start();
     this.sampled = sampled;
@@ -152,6 +163,8 @@ public final class BatchSpanProcessor implements SpanProcessor {
 
     private static final BoundLongCounter droppedSpans;
 
+    private final Timer timer = new Timer(TIMER_THREAD_NAME);
+
     private static final Logger logger = Logger.getLogger(Worker.class.getName());
     private final SpanExporter spanExporter;
     private final long scheduleDelayMillis;
@@ -159,6 +172,7 @@ public final class BatchSpanProcessor implements SpanProcessor {
     private final int maxExportBatchSize;
     private final int halfMaxQueueSize;
     private final Object monitor = new Object();
+    private final int exporterTimeoutMillis;
     private final AtomicBoolean exportAvailable = new AtomicBoolean(true);
 
     @GuardedBy("monitor")
@@ -168,12 +182,14 @@ public final class BatchSpanProcessor implements SpanProcessor {
         SpanExporter spanExporter,
         long scheduleDelayMillis,
         int maxQueueSize,
-        int maxExportBatchSize) {
+        int maxExportBatchSize,
+        int exporterTimeoutMillis) {
       this.spanExporter = spanExporter;
       this.scheduleDelayMillis = scheduleDelayMillis;
       this.maxQueueSize = maxQueueSize;
       this.halfMaxQueueSize = maxQueueSize >> 1;
       this.maxExportBatchSize = maxExportBatchSize;
+      this.exporterTimeoutMillis = exporterTimeoutMillis;
       this.spansList = new ArrayList<>(maxQueueSize);
     }
 
@@ -224,6 +240,7 @@ public final class BatchSpanProcessor implements SpanProcessor {
 
     private void shutdown() {
       forceFlush();
+      timer.cancel();
       spanExporter.shutdown();
     }
 
@@ -263,7 +280,7 @@ public final class BatchSpanProcessor implements SpanProcessor {
       if (exportAvailable.compareAndSet(true, false)) {
         try {
           final CompletableResultCode result = spanExporter.export(spans);
-          result.thenRun(
+          result.whenComplete(
               new Runnable() {
                 @Override
                 public void run() {
@@ -273,6 +290,14 @@ public final class BatchSpanProcessor implements SpanProcessor {
                   exportAvailable.set(true);
                 }
               });
+          timer.schedule(
+              new TimerTask() {
+                @Override
+                public void run() {
+                  result.fail();
+                }
+              },
+              exporterTimeoutMillis);
         } catch (Exception e) {
           logger.log(Level.WARNING, "Exporter threw an Exception", e);
         }
@@ -464,12 +489,13 @@ public final class BatchSpanProcessor implements SpanProcessor {
      * @throws NullPointerException if the {@code spanExporter} is {@code null}.
      */
     public BatchSpanProcessor build() {
-      /*
-       * Note that setting an export timeout has no effect - there's no sure way to cancel a
-       * thread of execution, even by asking an export to cancel any associated threads.
-       */
       return new BatchSpanProcessor(
-          spanExporter, exportOnlySampled, scheduleDelayMillis, maxQueueSize, maxExportBatchSize);
+          spanExporter,
+          exportOnlySampled,
+          scheduleDelayMillis,
+          maxQueueSize,
+          maxExportBatchSize,
+          exporterTimeoutMillis);
     }
   }
 }

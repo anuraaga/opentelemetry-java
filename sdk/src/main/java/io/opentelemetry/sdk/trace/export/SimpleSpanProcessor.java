@@ -83,7 +83,7 @@ public final class SimpleSpanProcessor implements SpanProcessor {
       try {
         List<SpanData> spans = Collections.singletonList(span.toSpanData());
         final CompletableResultCode result = spanExporter.export(spans);
-        result.thenRun(
+        result.whenComplete(
             new Runnable() {
               @Override
               public void run() {

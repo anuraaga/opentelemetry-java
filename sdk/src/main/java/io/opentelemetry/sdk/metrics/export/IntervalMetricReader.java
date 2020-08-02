@@ -218,7 +218,7 @@ public final class IntervalMetricReader {
           }
           final CompletableResultCode result =
               internalState.getMetricExporter().export(Collections.unmodifiableList(metricsList));
-          result.thenRun(
+          result.whenComplete(
               new Runnable() {
                 @Override
                 public void run() {
