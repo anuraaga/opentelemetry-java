@@ -48,7 +48,7 @@ jobs:
           done
       - uses: burrunan/gradle-cache-action@v1.5
         with:
-          job-id: jdk8
+          job-id: jdk11
           remote-build-cache-proxy-enabled: false
           arguments: prepareRelease build --stacktrace
           properties: |

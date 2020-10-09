@@ -26,10 +26,12 @@ jobs:
           properties: |
             enable.docker.tests=true
       - name: Commit README updates
-        run: git commit "Releasing ${{ github.event.inputs.version }}"
+        run: git commit -am "Releasing ${{ github.event.inputs.version }}"
       - name: Publish artifacts
         run: ./gradlew final --stacktrace
         env:
           CI: true
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
+      - name: Push README updates
+        run: git push
