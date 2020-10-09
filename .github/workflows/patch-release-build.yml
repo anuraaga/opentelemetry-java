@@ -34,7 +34,7 @@ jobs:
       ORG_GRADLE_PROJECT_release.version: ${{ github.event.inputs.version }}
     steps:
       - uses: actions/checkout@v2
-        ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.releaes-branch-name }}
+        ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.release-branch-name }}
         with:
           submodules: true
       - uses: actions/setup-java@v1
@@ -50,11 +50,11 @@ jobs:
         with:
           job-id: jdk11
           remote-build-cache-proxy-enabled: false
-          arguments: prepareRelease build --stacktrace
+          arguments: prepareRelease build --stacktrace -Prelease.version=${{ github.event.inputs.version }}
           properties: |
             enable.docker.tests=true
       - name: Publish artifacts
-        run: ./gradlew final --stacktrace
+        run: ./gradlew final --stacktrace -Prelease.version=${{ github.event.inputs.version }}
         env:
           CI: true
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
