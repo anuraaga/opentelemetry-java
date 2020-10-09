@@ -39,7 +39,7 @@ jobs:
           submodules: true
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - name: Cherrypicks
         run: |
           echo ${{ github.event.inputs.commits }} | sed -n 1'p' | tr ',' '\n' | while read word; do
