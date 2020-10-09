@@ -121,11 +121,11 @@ subprojects {
             publish = true
 
             pkg {
-                repo = 'maven'
+                repo = 'opentelemetry-java'
                 name = 'opentelemetry-java'
                 licenses = ['Apache-2.0']
                 vcsUrl = 'https://github.com/open-telemetry/opentelemetry-java.git'
-                userOrg = 'open-telemetry'
+                userOrg = 'rag-istellar'
 
                 githubRepo = 'open-telemetry/opentelemetry-java'
 
@@ -136,10 +136,12 @@ subprojects {
                         sign = true
                     }
 
+                    /*
                     mavenCentralSync {
                         user = System.getenv("SONATYPE_USER")
                         password = System.getenv("SONATYPE_KEY")
                     }
+                    */
                 }
             }
         }
