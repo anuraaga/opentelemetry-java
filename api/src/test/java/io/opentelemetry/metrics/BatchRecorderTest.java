@@ -1,78 +1,72 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.metrics;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/** Tests for {@link BatchRecorder}. */
-@RunWith(JUnit4.class)
-public class BatchRecorderTest {
+import org.junit.jupiter.api.Test;
+
+class BatchRecorderTest {
   private static final Meter meter = DefaultMeter.getInstance();
 
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   @Test
-  public void preventNull_MeasureLong() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("valueRecorder");
-    meter.newBatchRecorder().put((LongValueRecorder) null, 5L).record();
+  void testNewBatchRecorder_badLabelSet() {
+    assertThrows(IllegalArgumentException.class, () -> meter.newBatchRecorder("key"), "key/value");
   }
 
   @Test
-  public void preventNull_MeasureDouble() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("valueRecorder");
-    meter.newBatchRecorder().put((DoubleValueRecorder) null, 5L).record();
+  void preventNull_MeasureLong() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((LongValueRecorder) null, 5L).record(),
+        "valueRecorder");
   }
 
   @Test
-  public void preventNull_LongCounter() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("counter");
-    meter.newBatchRecorder().put((LongCounter) null, 5L).record();
+  void preventNull_MeasureDouble() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((DoubleValueRecorder) null, 5L).record(),
+        "valueRecorder");
   }
 
   @Test
-  public void preventNull_DoubleCounter() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("counter");
-    meter.newBatchRecorder().put((DoubleCounter) null, 5L).record();
+  void preventNull_LongCounter() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((LongCounter) null, 5L).record(),
+        "counter");
   }
 
   @Test
-  public void preventNull_LongUpDownCounter() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("upDownCounter");
-    meter.newBatchRecorder().put((LongUpDownCounter) null, 5L).record();
+  void preventNull_DoubleCounter() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((DoubleCounter) null, 5L).record(),
+        "counter");
   }
 
   @Test
-  public void preventNull_DoubleUpDownCounter() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("upDownCounter");
-    meter.newBatchRecorder().put((DoubleUpDownCounter) null, 5L).record();
+  void preventNull_LongUpDownCounter() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((LongUpDownCounter) null, 5L).record(),
+        "upDownCounter");
   }
 
   @Test
-  public void doesNotThrow() {
+  void preventNull_DoubleUpDownCounter() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.newBatchRecorder().put((DoubleUpDownCounter) null, 5L).record(),
+        "upDownCounter");
+  }
+
+  @Test
+  void doesNotThrow() {
     BatchRecorder batchRecorder = meter.newBatchRecorder();
     batchRecorder.put(meter.longValueRecorderBuilder("longValueRecorder").build(), 44L);
     batchRecorder.put(meter.longValueRecorderBuilder("negativeLongValueRecorder").build(), -44L);
@@ -87,18 +81,20 @@ public class BatchRecorderTest {
   }
 
   @Test
-  public void negativeValue_DoubleCounter() {
+  void negativeValue_DoubleCounter() {
     BatchRecorder batchRecorder = meter.newBatchRecorder();
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Counters can only increase");
-    batchRecorder.put(meter.doubleCounterBuilder("doubleCounter").build(), -77.556d);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> batchRecorder.put(meter.doubleCounterBuilder("doubleCounter").build(), -77.556d),
+        "Counters can only increase");
   }
 
   @Test
-  public void negativeValue_LongCounter() {
+  void negativeValue_LongCounter() {
     BatchRecorder batchRecorder = meter.newBatchRecorder();
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Counters can only increase");
-    batchRecorder.put(meter.longCounterBuilder("longCounter").build(), -44L);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> batchRecorder.put(meter.longCounterBuilder("longCounter").build(), -44L),
+        "Counters can only increase");
   }
 }

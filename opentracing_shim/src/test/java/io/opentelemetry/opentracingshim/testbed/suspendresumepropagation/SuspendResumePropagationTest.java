@@ -1,32 +1,22 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim.testbed.suspendresumepropagation;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.opentelemetry.exporters.inmemory.InMemoryTracing;
 import io.opentelemetry.opentracingshim.TraceShim;
-import io.opentelemetry.sdk.correlationcontext.CorrelationContextManagerSdk;
+import io.opentelemetry.sdk.baggage.BaggageManagerSdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.trace.SpanId;
 import io.opentracing.Tracer;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * These tests are intended to simulate the kind of async models that are common in java async
@@ -34,17 +24,17 @@ import org.junit.Test;
  *
  * @author tylerbenson
  */
-public class SuspendResumePropagationTest {
+class SuspendResumePropagationTest {
   private final TracerSdkProvider sdk = TracerSdkProvider.builder().build();
   private final InMemoryTracing inMemoryTracing =
-      InMemoryTracing.builder().setTracerProvider(sdk).build();
-  private final Tracer tracer = TraceShim.createTracerShim(sdk, new CorrelationContextManagerSdk());
+      InMemoryTracing.builder().setTracerSdkManagement(sdk).build();
+  private final Tracer tracer = TraceShim.createTracerShim(sdk, new BaggageManagerSdk());
 
-  @Before
-  public void before() {}
+  @BeforeEach
+  void before() {}
 
   @Test
-  public void testContinuationInterleaving() {
+  void testContinuationInterleaving() {
     SuspendResume job1 = new SuspendResume(1, tracer);
     SuspendResume job2 = new SuspendResume(2, tracer);
 
@@ -65,7 +55,7 @@ public class SuspendResumePropagationTest {
     assertThat(finished.get(0).getName()).isEqualTo("job 1");
     assertThat(finished.get(1).getName()).isEqualTo("job 2");
 
-    assertThat(finished.get(0).getParentSpanId().isValid()).isFalse();
-    assertThat(finished.get(1).getParentSpanId().isValid()).isFalse();
+    assertThat(SpanId.isValid(finished.get(0).getParentSpanId())).isFalse();
+    assertThat(SpanId.isValid(finished.get(1).getParentSpanId())).isFalse();
   }
 }

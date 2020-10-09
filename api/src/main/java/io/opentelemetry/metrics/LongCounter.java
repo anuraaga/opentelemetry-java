@@ -1,35 +1,24 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.metrics;
 
+import io.opentelemetry.common.Labels;
 import io.opentelemetry.metrics.LongCounter.BoundLongCounter;
-import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Counter is the most common synchronous instrument. This instrument supports an {@link #add(long,
- * String...)}` function for reporting an increment, and is restricted to non-negative increments.
- * The default aggregation is `Sum`.
+ * Labels)}` function for reporting an increment, and is restricted to non-negative increments. The
+ * default aggregation is `Sum`.
  *
  * <p>Example:
  *
  * <pre>{@code
  * class YourClass {
- *   private static final Meter meter = OpenTelemetry.getMeterRegistry().get("my_library_name");
+ *   private static final Meter meter = OpenTelemetry.getMeterProvider().get("my_library_name");
  *   private static final LongCounter counter =
  *       meter.
  *           .longCounterBuilder("processed_jobs")
@@ -59,13 +48,23 @@ public interface LongCounter extends SynchronousInstrument<BoundLongCounter> {
    * <p>The value added is associated with the current {@code Context} and provided set of labels.
    *
    * @param increment the value to add.
-   * @param labelKeyValuePairs the set of labels to be associated to this recording.
+   * @param labels the set of labels to be associated to this recording.
    * @since 0.1.0
    */
-  void add(long increment, String... labelKeyValuePairs);
+  void add(long increment, Labels labels);
+
+  /**
+   * Adds the given {@code increment} to the current value. The values cannot be negative.
+   *
+   * <p>The value added is associated with the current {@code Context} and empty labels.
+   *
+   * @param increment the value to add.
+   * @since 0.8.0
+   */
+  void add(long increment);
 
   @Override
-  BoundLongCounter bind(String... labelKeyValuePairs);
+  BoundLongCounter bind(Labels labels);
 
   /**
    * A {@code Bound Instrument} for a {@link LongCounter}.
@@ -96,9 +95,6 @@ public interface LongCounter extends SynchronousInstrument<BoundLongCounter> {
 
     @Override
     Builder setUnit(String unit);
-
-    @Override
-    Builder setConstantLabels(Map<String, String> constantLabels);
 
     @Override
     LongCounter build();

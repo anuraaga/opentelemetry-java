@@ -1,25 +1,12 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.trace;
 
-import io.opentelemetry.common.AttributeValue;
-import io.opentelemetry.internal.Utils;
-import java.util.Map;
-import java.util.Random;
+import io.opentelemetry.common.AttributeKey;
+import io.opentelemetry.common.Attributes;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -33,7 +20,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class DefaultSpan implements Span {
 
-  private static final Random random = new Random();
   private static final DefaultSpan INVALID = new DefaultSpan(SpanContext.getInvalid());
 
   /**
@@ -42,7 +28,7 @@ public final class DefaultSpan implements Span {
    * @return a {@code DefaultSpan} with an invalid {@code SpanContext}.
    * @since 0.1.0
    */
-  public static DefaultSpan getInvalid() {
+  public static Span getInvalid() {
     return INVALID;
   }
 
@@ -53,17 +39,8 @@ public final class DefaultSpan implements Span {
    * @return a {@link DefaultSpan}.
    * @since 0.1.0
    */
-  public static DefaultSpan create(SpanContext spanContext) {
+  public static Span create(SpanContext spanContext) {
     return new DefaultSpan(spanContext);
-  }
-
-  static DefaultSpan createRandom() {
-    return new DefaultSpan(
-        SpanContext.create(
-            TraceId.generateRandomId(random),
-            SpanId.generateRandomId(random),
-            TraceFlags.getDefault(),
-            TraceState.getDefault()));
   }
 
   private final SpanContext spanContext;
@@ -73,81 +50,52 @@ public final class DefaultSpan implements Span {
   }
 
   @Override
-  public void setAttribute(String key, String value) {
-    Utils.checkNotNull(key, "key");
-  }
+  public void setAttribute(String key, String value) {}
 
   @Override
-  public void setAttribute(String key, long value) {
-    Utils.checkNotNull(key, "key");
-  }
+  public void setAttribute(String key, long value) {}
 
   @Override
-  public void setAttribute(String key, double value) {
-    Utils.checkNotNull(key, "key");
-  }
+  public void setAttribute(String key, double value) {}
 
   @Override
-  public void setAttribute(String key, boolean value) {
-    Utils.checkNotNull(key, "key");
-  }
+  public void setAttribute(String key, boolean value) {}
 
   @Override
-  public void setAttribute(String key, AttributeValue value) {
-    Utils.checkNotNull(key, "key");
-    Utils.checkNotNull(value, "value");
-  }
+  public <T> void setAttribute(AttributeKey<T> key, T value) {}
 
   @Override
   public void addEvent(String name) {}
 
   @Override
-  public void addEvent(String name, long timestamp) {
-    Utils.checkNotNull(name, "name");
-    Utils.checkArgument(timestamp >= 0, "Negative timestamp");
-  }
+  public void addEvent(String name, long timestamp) {}
 
   @Override
-  public void addEvent(String name, Map<String, AttributeValue> attributes) {
-    Utils.checkNotNull(name, "name");
-    Utils.checkNotNull(attributes, "attributes");
-  }
+  public void addEvent(String name, Attributes attributes) {}
 
   @Override
-  public void addEvent(String name, Map<String, AttributeValue> attributes, long timestamp) {
-    Utils.checkNotNull(name, "name");
-    Utils.checkNotNull(attributes, "attributes");
-    Utils.checkArgument(timestamp >= 0, "Negative timestamp");
-  }
+  public void addEvent(String name, Attributes attributes, long timestamp) {}
 
   @Override
-  public void addEvent(Event event) {
-    Utils.checkNotNull(event, "event");
-  }
+  public void setStatus(StatusCanonicalCode canonicalCode) {}
 
   @Override
-  public void addEvent(Event event, long timestamp) {
-    Utils.checkNotNull(event, "event");
-    Utils.checkArgument(timestamp >= 0, "Negative timestamp");
-  }
+  public void setStatus(StatusCanonicalCode canonicalCode, String description) {}
 
   @Override
-  public void setStatus(Status status) {
-    Utils.checkNotNull(status, "status");
-  }
+  public void recordException(Throwable exception) {}
 
   @Override
-  public void updateName(String name) {
-    Utils.checkNotNull(name, "name");
-  }
+  public void recordException(Throwable exception, Attributes additionalAttributes) {}
+
+  @Override
+  public void updateName(String name) {}
 
   @Override
   public void end() {}
 
   @Override
-  public void end(EndSpanOptions endOptions) {
-    Utils.checkNotNull(endOptions, "endOptions");
-  }
+  public void end(EndSpanOptions endOptions) {}
 
   @Override
   public SpanContext getContext() {

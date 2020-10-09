@@ -1,17 +1,6 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim.testbed.promisepropagation;
@@ -52,22 +41,19 @@ final class Promise<T> {
   public void success(final T result) {
     for (final SuccessCallback<T> callback : successCallbacks) {
       context.submit(
-          new Runnable() {
-            @Override
-            public void run() {
-              Span childSpan =
-                  tracer
-                      .buildSpan("success")
-                      .addReference(References.FOLLOWS_FROM, parentSpan.context())
-                      .withTag(Tags.COMPONENT.getKey(), "success")
-                      .start();
-              try (Scope childScope = tracer.activateSpan(childSpan)) {
-                callback.accept(result);
-              } finally {
-                childSpan.finish();
-              }
-              context.getPhaser().arriveAndAwaitAdvance(); // trace reported
+          () -> {
+            Span childSpan =
+                tracer
+                    .buildSpan("success")
+                    .addReference(References.FOLLOWS_FROM, parentSpan.context())
+                    .withTag(Tags.COMPONENT.getKey(), "success")
+                    .start();
+            try (Scope childScope = tracer.activateSpan(childSpan)) {
+              callback.accept(result);
+            } finally {
+              childSpan.finish();
             }
+            context.getPhaser().arriveAndAwaitAdvance(); // trace reported
           });
     }
   }
@@ -76,22 +62,19 @@ final class Promise<T> {
   public void error(final Throwable error) {
     for (final ErrorCallback callback : errorCallbacks) {
       context.submit(
-          new Runnable() {
-            @Override
-            public void run() {
-              Span childSpan =
-                  tracer
-                      .buildSpan("error")
-                      .addReference(References.FOLLOWS_FROM, parentSpan.context())
-                      .withTag(Tags.COMPONENT.getKey(), "error")
-                      .start();
-              try (Scope childScope = tracer.activateSpan(childSpan)) {
-                callback.accept(error);
-              } finally {
-                childSpan.finish();
-              }
-              context.getPhaser().arriveAndAwaitAdvance(); // trace reported
+          () -> {
+            Span childSpan =
+                tracer
+                    .buildSpan("error")
+                    .addReference(References.FOLLOWS_FROM, parentSpan.context())
+                    .withTag(Tags.COMPONENT.getKey(), "error")
+                    .start();
+            try (Scope childScope = tracer.activateSpan(childSpan)) {
+              callback.accept(error);
+            } finally {
+              childSpan.finish();
             }
+            context.getPhaser().arriveAndAwaitAdvance(); // trace reported
           });
     }
   }

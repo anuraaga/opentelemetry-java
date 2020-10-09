@@ -1,17 +1,6 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.trace;
@@ -21,6 +10,8 @@ import io.opentelemetry.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -45,6 +36,8 @@ public abstract class TraceState {
   private static final int VALUE_MAX_SIZE = 256;
   private static final int MAX_KEY_VALUE_PAIRS = 32;
   private static final TraceState DEFAULT = TraceState.builder().build();
+  private static final int MAX_TENANT_ID_SIZE = 240;
+  public static final int MAX_VENDOR_ID_SIZE = 13;
 
   /**
    * Returns the default {@code TraceState} with no entries.
@@ -65,7 +58,7 @@ public abstract class TraceState {
    *     for the key.
    * @since 0.1.0
    */
-  @javax.annotation.Nullable
+  @Nullable
   public String get(String key) {
     for (Entry entry : getEntries()) {
       if (entry.getKey().equals(key)) {
@@ -110,14 +103,14 @@ public abstract class TraceState {
    */
   public static final class Builder {
     private final TraceState parent;
-    @javax.annotation.Nullable private ArrayList<Entry> entries;
+    @Nullable private ArrayList<Entry> entries;
 
     // Needs to be in this class to avoid initialization deadlock because super class depends on
     // subclass (the auto-value generate class).
-    private static final TraceState EMPTY = create(Collections.<Entry>emptyList());
+    private static final TraceState EMPTY = create(Collections.emptyList());
 
     private Builder(TraceState parent) {
-      Utils.checkNotNull(parent, "parent");
+      Objects.requireNonNull(parent, "parent");
       this.parent = parent;
       this.entries = null;
     }
@@ -158,7 +151,7 @@ public abstract class TraceState {
      * @since 0.1.0
      */
     public Builder remove(String key) {
-      Utils.checkNotNull(key, "key");
+      Objects.requireNonNull(key, "key");
       if (entries == null) {
         // Copy entries from the parent.
         entries = new ArrayList<>(parent.getEntries());
@@ -205,8 +198,8 @@ public abstract class TraceState {
      * @since 0.1.0
      */
     public static Entry create(String key, String value) {
-      Utils.checkNotNull(key, "key");
-      Utils.checkNotNull(value, "value");
+      Objects.requireNonNull(key, "key");
+      Objects.requireNonNull(value, "value");
       Utils.checkArgument(validateKey(key), "Invalid key %s", key);
       Utils.checkArgument(validateValue(value), "Invalid value %s", value);
       return new AutoValue_TraceState_Entry(key, value);
@@ -234,27 +227,61 @@ public abstract class TraceState {
   // Key is opaque string up to 256 characters printable. It MUST begin with a lowercase letter, and
   // can only contain lowercase letters a-z, digits 0-9, underscores _, dashes -, asterisks *, and
   // forward slashes /.  For multi-tenant vendor scenarios, an at sign (@) can be used to prefix the
-  // vendor name.
+  // vendor name. The tenant id (before the '@') is limited to 240 characters and the vendor id is
+  // limited to 13 characters. If in the multi-tenant vendor format, then the first character
+  // may additionally be digit.
+  //
   // todo: benchmark this implementation
   private static boolean validateKey(String key) {
-    if (key.length() > KEY_MAX_SIZE || key.isEmpty() || !isNumberOrDigit(key.charAt(0))) {
+    if (key.length() > KEY_MAX_SIZE
+        || key.isEmpty()
+        || isNotLowercaseLetterOrDigit(key.charAt(0))) {
       return false;
     }
-    int atSeenCount = 0;
+    boolean isMultiTenantVendorKey = false;
     for (int i = 1; i < key.length(); i++) {
       char c = key.charAt(i);
-      if (!isNumberOrDigit(c) && c != '_' && c != '-' && c != '@' && c != '*' && c != '/') {
+      if (isNotLegalKeyCharacter(c)) {
         return false;
       }
-      if ((c == '@') && (++atSeenCount > 1)) {
-        return false;
+      if (c == '@') {
+        // you can't have 2 '@' signs
+        if (isMultiTenantVendorKey) {
+          return false;
+        }
+        isMultiTenantVendorKey = true;
+        // tenant id (the part to the left of the '@' sign) must be 240 characters or less
+        if (i > MAX_TENANT_ID_SIZE) {
+          return false;
+        }
+        // vendor id (the part to the right of the '@' sign) must be 13 characters or less
+        if (key.length() - i > MAX_VENDOR_ID_SIZE) {
+          return false;
+        }
       }
+    }
+    if (!isMultiTenantVendorKey) {
+      // if it's not the vendor format (with an '@' sign), the key must start with a letter.
+      return isNotDigit(key.charAt(0));
     }
     return true;
   }
 
-  private static boolean isNumberOrDigit(char ch) {
-    return (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+  private static boolean isNotLegalKeyCharacter(char c) {
+    return isNotLowercaseLetterOrDigit(c)
+        && c != '_'
+        && c != '-'
+        && c != '@'
+        && c != '*'
+        && c != '/';
+  }
+
+  private static boolean isNotLowercaseLetterOrDigit(char ch) {
+    return (ch < 'a' || ch > 'z') && isNotDigit(ch);
+  }
+
+  private static boolean isNotDigit(char ch) {
+    return ch < '0' || ch > '9';
   }
 
   // Value is opaque string up to 256 characters printable ASCII RFC0020 characters (i.e., the range

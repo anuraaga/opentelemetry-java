@@ -1,6 +1,9 @@
-apply plugin: "java-platform"
-apply plugin: "maven-publish"
+plugins {
+    id "java-platform"
+    id "maven-publish"
+}
 
+description = 'OpenTelemetry Bill of Materials'
 group = "io.opentelemetry"
 
 dependencies {
@@ -12,14 +15,5 @@ dependencies {
                     api project
                     println project
                 }
-    }
-}
-
-publishing {
-    publications {
-        mavenBom(MavenPublication) {
-            artifactId = 'opentelemetry-bom'
-            from components.javaPlatform
-        }
     }
 }

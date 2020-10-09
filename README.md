@@ -7,20 +7,31 @@
 We hold regular meetings. See details at [community page](https://github.com/open-telemetry/community#java-sdk).
 
 ## Overview
-OpenTelemetry is a working name of a combined OpenCensus and OpenTracing
+
+OpenTelemetry is the merging of OpenCensus and OpenTracing into one
 project.
 
 This project contains the following top level components:
 
-* [api](api/): The OpenTelemetry API.
-  * [trace](api/src/main/java/io/opentelemetry/trace/): The tracing api. Includes `Tracer`, `Span` and `SpanContext`.
-  * [correlationcontext](/api/src/main/java/io/opentelemetry/correlationcontext): Collection of entries in the form of key-value pairs of data that can be propagated to provide contextual information.
-  * [context](api/src/main/java/io/opentelemetry/context/): In-process and inter-process propagation layer.
-  * [metrics](api/src/main/java/io/opentelemetry/metrics/): Metrics layer.
-* [sdk](sdk/): The reference implementation complying to the OpenTelemetry API.
-* [OpenTracing shim](opentracing_shim/): A bridge layer from OpenTelemetry to the OpenTracing API.
+* [OpenTelemetry API](api/):
+  * [tracing api](api/src/main/java/io/opentelemetry/trace/) includes `Tracer`, `Span` and `SpanContext`.
+  * [baggage api](/api/src/main/java/io/opentelemetry/baggage) defines a collection of entries in the form of key-value pairs of data that can be propagated to provide contextual information.
+  * [context api](api/src/main/java/io/opentelemetry/context/) defines the in-process and inter-process propagation layer.
+  * [metrics api](api/src/main/java/io/opentelemetry/metrics/).
+* [extensions](extensions/) define additional API extensions, which are not part of the core API.
+* [sdk](sdk/) define the reference implementation complying to the OpenTelemetry API.
+* [sdk extensions](sdk_extensions/) define additional SDK extensions, which are not part of the core SDK.
+* [OpenTracing shim](opentracing_shim/) defines a bridge layer from OpenTracing to the OpenTelemetry API.
+* [examples](examples/) on how to use the APIs, SDK, and standard exporters.
 
 We would love to hear from the larger community: please provide feedback proactively.
+
+### Note about extensions
+
+Both API and SDK extensions consist of various additional components which are excluded from the core artifacts
+to keep them from growing too large.
+We still aim to provide the same level of quality and guarantee for them as for the core components.
+Please don't hesitate to use them if you find them useful. 
 
 ## Project setup and contribute
 
@@ -28,8 +39,32 @@ Please refer to the [contribution guide](CONTRIBUTING.md)
 on how to setup and contribute!
 
 ## Quick Start
+
 Please refer to the [quick start guide](QUICKSTART.md) on how use the OpenTelemetry API.
 
+## Published Releases
+
+Published releases are available on maven central.
+
+### Maven
+
+```xml
+  <dependencies>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
+      <version>0.8.0</version>
+    </dependency>
+  </dependencies>
+```
+
+### Gradle
+
+```groovy
+dependencies {
+	compile('io.opentelemetry:opentelemetry-api:0.8.0')
+}
+```
 
 ## Snapshots
 
@@ -49,7 +84,7 @@ Snapshots based out the `master` branch are available for `opentelemetry-api`, `
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-api</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.9.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```
@@ -62,7 +97,7 @@ repositories {
 }
 
 dependencies {
-	compile('io.opentelemetry:opentelemetry-api:0.2.0-SNAPSHOT')
+	compile('io.opentelemetry:opentelemetry-api:0.8.0-SNAPSHOT')
 }
 ```
 
@@ -75,23 +110,23 @@ OpenTelemetry Java is under active development. Releases aren't guaranteed
 to conform to a specific version of the specification. Future releases will
 not attempt to maintain backwards compatibility with previous releases.
 
-The latest version of the libraries were released on March 27th, 2020.
-See the [v0.3.0 alpha release](https://github.com/open-telemetry/opentelemetry-java/releases/tag/v0.3.0).
+The latest version of the libraries were released on September 1st, 2020.
+See the [v0.8.0 beta release](https://github.com/open-telemetry/opentelemetry-java/releases/tag/v0.8.0).
 
 This is a **current** feature status list:
 
 | Component                   | Version |
 | --------------------------- | ------- |
-| Tracing API                 | v0.3.0  |
-| Tracing SDK                 | v0.3.0  |
-| Metrics API                 | v0.3.0  |
-| Metrics SDK                 | v0.3.0  |
-| OTLP Exporter               | v0.3.0  |
-| Jaeger Trace Exporter       | v0.3.0  |
-| Zipkin Trace Exporter       | dev     |
-| Prometheus Metrics Exporter | dev     |
-| Context Propagation         | v0.3.0  |
-| OpenTracing Bridge          | v0.3.0  |
+| Tracing API                 | v0.8.0  |
+| Tracing SDK                 | v0.8.0  |
+| Metrics API                 | v0.8.0  |
+| Metrics SDK                 | v0.8.0  |
+| OTLP Exporter               | v0.8.0  |
+| Jaeger Trace Exporter       | v0.8.0  |
+| Zipkin Trace Exporter       | v0.8.0  |
+| Prometheus Metrics Exporter | v0.8.0  |
+| Context Propagation         | v0.8.0  |
+| OpenTracing Bridge          | v0.8.0  |
 | OpenCensus Bridge           | N/A     |
 
 See the project [milestones](https://github.com/open-telemetry/opentelemetry-java/milestones)
@@ -104,13 +139,15 @@ We plan to merge projects and pave the path for future improvements as a unified
 community of tracing vendors, users and library authors who wants apps be
 managed better. We are open to feedback and suggestions from all of you!
 
-## Owners
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 Approvers ([@open-telemetry/java-approvers](https://github.com/orgs/open-telemetry/teams/java-approvers)):
 
+- [Armin Ruech](https://github.com/arminru), Dynatrace
 - [Pavol Loffay](https://github.com/pavolloffay), RedHat
 - [Tyler Benson](https://github.com/tylerbenson), DataDog
-- [Armin Ruech](https://github.com/arminru), Dynatrace
 - [Giovanni Liva](https://github.com/thisthat), Dynatrace
 
 *Find more about the approver role in [community repository](https://github.com/open-telemetry/community/blob/master/community-membership.md#approver).*
@@ -119,9 +156,14 @@ Maintainers ([@open-telemetry/java-maintainers](https://github.com/orgs/open-tel
 
 - [Bogdan Drutu](https://github.com/BogdanDrutu), Splunk
 - [Carlos Alberto](https://github.com/carlosalberto), LightStep
-- [John Watson](https://github.com/jkwatson), New Relic
+- [John Watson](https://github.com/jkwatson), Splunk
+- [Anuraag Agrawal](https://github.com/anuraaga), AWS
 
 *Find more about the maintainer role in [community repository](https://github.com/open-telemetry/community/blob/master/community-membership.md#maintainer).*
+
+### Thanks to all the people who have contributed
+
+[![contributors](https://contributors-img.web.app/image?repo=open-telemetry/opentelemetry-java)](https://github.com/open-telemetry/opentelemetry-java/graphs/contributors)
 
 [circleci-image]: https://circleci.com/gh/open-telemetry/opentelemetry-java.svg?style=svg 
 [circleci-url]: https://circleci.com/gh/open-telemetry/opentelemetry-java

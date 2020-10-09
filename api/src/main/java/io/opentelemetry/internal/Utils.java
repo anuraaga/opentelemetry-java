@@ -1,22 +1,11 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.internal;
 
-import java.util.Map;
+import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 
 /** General internal utility methods. */
@@ -30,13 +19,11 @@ public final class Utils {
    * {@code Preconditions.checkArgument(boolean, Object)} from Guava.
    *
    * @param isValid whether the argument check passed.
-   * @param errorMessage the message to use for the exception. Will be converted to a string using
-   *     {@link String#valueOf(Object)}.
+   * @param errorMessage the message to use for the exception.
    */
-  public static void checkArgument(
-      boolean isValid, @javax.annotation.Nullable Object errorMessage) {
+  public static void checkArgument(boolean isValid, String errorMessage) {
     if (!isValid) {
-      throw new IllegalArgumentException(String.valueOf(errorMessage));
+      throw new IllegalArgumentException(errorMessage);
     }
   }
 
@@ -57,9 +44,7 @@ public final class Utils {
    *     {@code errorMessageArgs} is null (don't let this happen)
    */
   public static void checkArgument(
-      boolean expression,
-      String errorMessageTemplate,
-      @javax.annotation.Nullable Object... errorMessageArgs) {
+      boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {
     if (!expression) {
       throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
     }
@@ -70,77 +55,12 @@ public final class Utils {
    * {@code Preconditions.checkState(boolean, Object)} from Guava.
    *
    * @param isValid whether the state check passed.
-   * @param errorMessage the message to use for the exception. Will be converted to a string using
-   *     {@link String#valueOf(Object)}.
+   * @param errorMessage the message to use for the exception.
    */
-  public static void checkState(boolean isValid, @javax.annotation.Nullable Object errorMessage) {
+  public static void checkState(boolean isValid, String errorMessage) {
     if (!isValid) {
       throw new IllegalStateException(String.valueOf(errorMessage));
     }
-  }
-
-  /**
-   * Validates an index in an array or other container. This method throws an {@link
-   * IllegalArgumentException} if the size is negative and throws an {@link
-   * IndexOutOfBoundsException} if the index is negative or greater than or equal to the size. This
-   * method is similar to {@code Preconditions.checkElementIndex(int, int)} from Guava.
-   *
-   * @param index the index to validate.
-   * @param size the size of the array or container.
-   */
-  public static void checkIndex(int index, int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException("Negative size: " + size);
-    }
-    if (index < 0 || index >= size) {
-      throw new IndexOutOfBoundsException("Index out of bounds: size=" + size + ", index=" + index);
-    }
-  }
-
-  /**
-   * Throws a {@link NullPointerException} if the argument is null. This method is similar to {@code
-   * Preconditions.checkNotNull(Object, Object)} from Guava.
-   *
-   * @param arg the argument to check for null.
-   * @param errorMessage the message to use for the exception. Will be converted to a string using
-   *     {@link String#valueOf(Object)}.
-   * @param <T> type of an argument to check.
-   * @return the argument, if it passes the null check.
-   */
-  public static <T> T checkNotNull(T arg, @javax.annotation.Nullable Object errorMessage) {
-    if (arg == null) {
-      throw new NullPointerException(String.valueOf(errorMessage));
-    }
-    return arg;
-  }
-
-  /**
-   * Throws a {@link NullPointerException} if any of the map elements is null.
-   *
-   * @param map the argument map to check for null.
-   * @param errorMessage the message to use for the exception. Will be converted to a string using
-   *     {@link String#valueOf(Object)}.
-   */
-  public static <K, V> void checkMapKeysNotNull(
-      Map<K, V> map, @javax.annotation.Nullable Object errorMessage) {
-    for (Map.Entry<K, V> entry : map.entrySet()) {
-      if (entry.getKey() == null) {
-        throw new NullPointerException(String.valueOf(errorMessage));
-      }
-    }
-  }
-
-  /**
-   * Compares two Objects for equality. This functionality is provided by {@code
-   * Objects.equal(Object, Object)} in Java 7.
-   *
-   * @param x object to compare with.
-   * @param y object to compare to.
-   * @return {@code true} if x is the same as the y; {@code false} otherwise.
-   */
-  public static boolean equalsObjects(
-      @javax.annotation.Nullable Object x, @javax.annotation.Nullable Object y) {
-    return x == null ? y == null : x.equals(y);
   }
 
   /**
@@ -156,9 +76,9 @@ public final class Utils {
    *     to strings using {@link String#valueOf(Object)}. Arguments can be null.
    */
   // Note that this is somewhat-improperly used from Verify.java as well.
-  private static String format(String template, @javax.annotation.Nullable Object... args) {
+  private static String format(String template, Object... args) {
     // If no arguments return the template.
-    if (args == null) {
+    if (args.length == 0) {
       return template;
     }
 
@@ -206,7 +126,7 @@ public final class Utils {
         "You must provide an even number of key/value pair arguments.");
     for (int i = 0; i < keyValuePairs.length; i += 2) {
       String key = keyValuePairs[i];
-      checkNotNull(key, "You cannot provide null keys for label creation.");
+      Objects.requireNonNull(key, "You cannot provide null keys for label creation.");
     }
   }
 }

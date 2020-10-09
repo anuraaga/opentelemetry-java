@@ -1,17 +1,6 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim.testbed.errorreporting;
@@ -19,16 +8,16 @@ package io.opentelemetry.opentracingshim.testbed.errorreporting;
 import static io.opentelemetry.opentracingshim.testbed.TestUtils.finishedSpansSize;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.opentelemetry.exporters.inmemory.InMemoryTracing;
 import io.opentelemetry.opentracingshim.TraceShim;
-import io.opentelemetry.sdk.correlationcontext.CorrelationContextManagerSdk;
+import io.opentelemetry.sdk.baggage.BaggageManagerSdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Event;
-import io.opentelemetry.trace.Status;
+import io.opentelemetry.trace.StatusCanonicalCode;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -40,20 +29,20 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("FutureReturnValueIgnored")
 public final class ErrorReportingTest {
 
   private final TracerSdkProvider sdk = TracerSdkProvider.builder().build();
   private final InMemoryTracing inMemoryTracing =
-      InMemoryTracing.builder().setTracerProvider(sdk).build();
-  private final Tracer tracer = TraceShim.createTracerShim(sdk, new CorrelationContextManagerSdk());
+      InMemoryTracing.builder().setTracerSdkManagement(sdk).build();
+  private final Tracer tracer = TraceShim.createTracerShim(sdk, new BaggageManagerSdk());
   private final ExecutorService executor = Executors.newCachedThreadPool();
 
   /* Very simple error handling **/
   @Test
-  public void testSimpleError() {
+  void testSimpleError() {
     Span span = tracer.buildSpan("one").start();
     try (Scope scope = tracer.activateSpan(span)) {
       throw new RuntimeException("Invalid state");
@@ -67,24 +56,21 @@ public final class ErrorReportingTest {
 
     List<SpanData> spans = inMemoryTracing.getSpanExporter().getFinishedSpanItems();
     assertEquals(spans.size(), 1);
-    assertEquals(spans.get(0).getStatus().getCanonicalCode(), Status.UNKNOWN.getCanonicalCode());
+    assertEquals(spans.get(0).getStatus().getCanonicalCode(), StatusCanonicalCode.ERROR);
   }
 
   /* Error handling in a callback capturing/activating the Span */
   @Test
-  public void testCallbackError() {
+  void testCallbackError() {
     final Span span = tracer.buildSpan("one").start();
     executor.submit(
-        new Runnable() {
-          @Override
-          public void run() {
-            try (Scope scope = tracer.activateSpan(span)) {
-              throw new RuntimeException("Invalid state");
-            } catch (Exception exc) {
-              Tags.ERROR.set(span, true);
-            } finally {
-              span.finish();
-            }
+        () -> {
+          try (Scope scope = tracer.activateSpan(span)) {
+            throw new RuntimeException("Invalid state");
+          } catch (Exception exc) {
+            Tags.ERROR.set(span, true);
+          } finally {
+            span.finish();
           }
         });
 
@@ -94,13 +80,13 @@ public final class ErrorReportingTest {
 
     List<SpanData> spans = inMemoryTracing.getSpanExporter().getFinishedSpanItems();
     assertEquals(spans.size(), 1);
-    assertEquals(spans.get(0).getStatus().getCanonicalCode(), Status.UNKNOWN.getCanonicalCode());
+    assertEquals(spans.get(0).getStatus().getCanonicalCode(), StatusCanonicalCode.ERROR);
   }
 
   /* Error handling for a max-retries task (such as url fetching).
    * We log the Exception at each retry. */
   @Test
-  public void testErrorRecovery() {
+  void testErrorRecovery() {
     final int maxRetries = 1;
     int retries = 0;
 
@@ -125,7 +111,7 @@ public final class ErrorReportingTest {
 
     List<SpanData> spans = inMemoryTracing.getSpanExporter().getFinishedSpanItems();
     assertEquals(spans.size(), 1);
-    assertEquals(spans.get(0).getStatus().getCanonicalCode(), Status.UNKNOWN.getCanonicalCode());
+    assertEquals(spans.get(0).getStatus().getCanonicalCode(), StatusCanonicalCode.ERROR);
 
     List<Event> events = spans.get(0).getEvents();
     assertEquals(events.size(), maxRetries);
@@ -137,23 +123,20 @@ public final class ErrorReportingTest {
   /* Error handling for a mocked layer automatically capturing/activating
    * the Span for a submitted Runnable. */
   @Test
-  public void testInstrumentationLayer() {
+  void testInstrumentationLayer() {
     Span span = tracer.buildSpan("one").start();
     try (Scope scope = tracer.activateSpan(span)) {
 
       // ScopedRunnable captures the active Span at this time.
       executor.submit(
           new ScopedRunnable(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    throw new RuntimeException("Invalid state");
-                  } catch (Exception exc) {
-                    Tags.ERROR.set(tracer.activeSpan(), true);
-                  } finally {
-                    tracer.activeSpan().finish();
-                  }
+              () -> {
+                try {
+                  throw new RuntimeException("Invalid state");
+                } catch (Exception exc) {
+                  Tags.ERROR.set(tracer.activeSpan(), true);
+                } finally {
+                  tracer.activeSpan().finish();
                 }
               },
               tracer));
@@ -165,7 +148,7 @@ public final class ErrorReportingTest {
 
     List<SpanData> spans = inMemoryTracing.getSpanExporter().getFinishedSpanItems();
     assertEquals(spans.size(), 1);
-    assertEquals(spans.get(0).getStatus().getCanonicalCode(), Status.UNKNOWN.getCanonicalCode());
+    assertEquals(spans.get(0).getStatus().getCanonicalCode(), StatusCanonicalCode.ERROR);
   }
 
   static class ScopedRunnable implements Runnable {

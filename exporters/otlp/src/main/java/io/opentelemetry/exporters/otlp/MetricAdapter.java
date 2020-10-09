@@ -1,34 +1,29 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.exporters.otlp;
 
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
+
+import io.opentelemetry.common.LabelConsumer;
+import io.opentelemetry.common.Labels;
 import io.opentelemetry.proto.common.v1.StringKeyValue;
+import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import io.opentelemetry.proto.metrics.v1.DoubleDataPoint;
+import io.opentelemetry.proto.metrics.v1.DoubleHistogram;
+import io.opentelemetry.proto.metrics.v1.DoubleHistogramDataPoint;
+import io.opentelemetry.proto.metrics.v1.DoubleSum;
 import io.opentelemetry.proto.metrics.v1.InstrumentationLibraryMetrics;
-import io.opentelemetry.proto.metrics.v1.Int64DataPoint;
+import io.opentelemetry.proto.metrics.v1.IntDataPoint;
+import io.opentelemetry.proto.metrics.v1.IntSum;
 import io.opentelemetry.proto.metrics.v1.Metric;
-import io.opentelemetry.proto.metrics.v1.MetricDescriptor;
-import io.opentelemetry.proto.metrics.v1.MetricDescriptor.Type;
 import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
-import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
-import io.opentelemetry.proto.metrics.v1.SummaryDataPoint.ValueAtPercentile;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor;
 import io.opentelemetry.sdk.metrics.data.MetricData.DoublePoint;
 import io.opentelemetry.sdk.metrics.data.MetricData.LongPoint;
 import io.opentelemetry.sdk.metrics.data.MetricData.Point;
@@ -89,59 +84,77 @@ final class MetricAdapter {
     return result;
   }
 
+  // fall through comment isn't working for some reason.
+  @SuppressWarnings("fallthrough")
   static Metric toProtoMetric(MetricData metricData) {
     Metric.Builder builder =
         Metric.newBuilder()
-            .setMetricDescriptor(toProtoMetricDescriptor(metricData.getDescriptor()));
-
+            .setName(metricData.getName())
+            .setDescription(metricData.getDescription())
+            .setUnit(metricData.getUnit());
     // If no points available then return.
     if (metricData.getPoints().isEmpty()) {
       return builder.build();
     }
 
-    switch (builder.getMetricDescriptor().getType()) {
-      case UNSPECIFIED:
-      case UNRECOGNIZED:
+    boolean monotonic = false;
+
+    switch (metricData.getType()) {
+      case MONOTONIC_LONG:
+        monotonic = true;
+        // fall through
+      case NON_MONOTONIC_LONG:
+        builder.setIntSum(
+            IntSum.newBuilder()
+                .setIsMonotonic(monotonic)
+                .setAggregationTemporality(mapToTemporality(metricData.getType()))
+                .addAllDataPoints(toIntDataPoints(metricData.getPoints()))
+                .build());
         break;
-      case GAUGE_INT64:
-      case COUNTER_INT64:
-        builder.addAllInt64DataPoints(toInt64DataPoints(metricData.getPoints()));
-        break;
-      case GAUGE_DOUBLE:
-      case COUNTER_DOUBLE:
-        builder.addAllDoubleDataPoints(toDoubleDataPoints(metricData.getPoints()));
-        break;
-      case GAUGE_HISTOGRAM:
-      case CUMULATIVE_HISTOGRAM:
-        // TODO: Add support for histogram.
+      case MONOTONIC_DOUBLE:
+        monotonic = true;
+        // fall through
+      case NON_MONOTONIC_DOUBLE:
+        builder.setDoubleSum(
+            DoubleSum.newBuilder()
+                .setIsMonotonic(monotonic)
+                .setAggregationTemporality(mapToTemporality(metricData.getType()))
+                .addAllDataPoints(toDoubleDataPoints(metricData.getPoints()))
+                .build());
         break;
       case SUMMARY:
-        builder.addAllSummaryDataPoints(toSummaryDataPoints(metricData.getPoints()));
+        builder.setDoubleHistogram(
+            DoubleHistogram.newBuilder()
+                .setAggregationTemporality(mapToTemporality(metricData.getType()))
+                .addAllDataPoints(toSummaryDataPoints(metricData.getPoints()))
+                .build());
         break;
     }
     return builder.build();
   }
 
-  static MetricDescriptor toProtoMetricDescriptor(Descriptor descriptor) {
-    return MetricDescriptor.newBuilder()
-        .setName(descriptor.getName())
-        .setDescription(descriptor.getDescription())
-        .setUnit(descriptor.getUnit())
-        .setType(toProtoMetricDescriptorType(descriptor.getType()))
-        .addAllLabels(toProtoLabels(descriptor.getConstantLabels()))
-        .build();
+  private static AggregationTemporality mapToTemporality(MetricData.Type type) {
+    switch (type) {
+      case NON_MONOTONIC_LONG:
+      case NON_MONOTONIC_DOUBLE:
+      case MONOTONIC_LONG:
+      case MONOTONIC_DOUBLE:
+        return AGGREGATION_TEMPORALITY_CUMULATIVE;
+      case SUMMARY:
+        return AGGREGATION_TEMPORALITY_DELTA;
+    }
+    return AGGREGATION_TEMPORALITY_UNSPECIFIED;
   }
 
-  static Collection<Int64DataPoint> toInt64DataPoints(Collection<Point> points) {
-    List<Int64DataPoint> result = new ArrayList<>(points.size());
+  static List<IntDataPoint> toIntDataPoints(Collection<Point> points) {
+    List<IntDataPoint> result = new ArrayList<>(points.size());
     for (Point point : points) {
       LongPoint longPoint = (LongPoint) point;
-      Int64DataPoint.Builder builder =
-          Int64DataPoint.newBuilder()
+      IntDataPoint.Builder builder =
+          IntDataPoint.newBuilder()
               .setStartTimeUnixNano(longPoint.getStartEpochNanos())
               .setTimeUnixNano(longPoint.getEpochNanos())
               .setValue(longPoint.getValue());
-      // Not calling directly addAllLabels because that generates couple of unnecessary allocations.
       Collection<StringKeyValue> labels = toProtoLabels(longPoint.getLabels());
       if (!labels.isEmpty()) {
         builder.addAllLabels(labels);
@@ -160,7 +173,6 @@ final class MetricAdapter {
               .setStartTimeUnixNano(doublePoint.getStartEpochNanos())
               .setTimeUnixNano(doublePoint.getEpochNanos())
               .setValue(doublePoint.getValue());
-      // Not calling directly addAllLabels because that generates couple of unnecessary allocations.
       Collection<StringKeyValue> labels = toProtoLabels(doublePoint.getLabels());
       if (!labels.isEmpty()) {
         builder.addAllLabels(labels);
@@ -170,28 +182,24 @@ final class MetricAdapter {
     return result;
   }
 
-  static Collection<SummaryDataPoint> toSummaryDataPoints(Collection<Point> points) {
-    List<SummaryDataPoint> result = new ArrayList<>(points.size());
+  static List<DoubleHistogramDataPoint> toSummaryDataPoints(Collection<Point> points) {
+    List<DoubleHistogramDataPoint> result = new ArrayList<>(points.size());
     for (Point point : points) {
       SummaryPoint summaryPoint = (SummaryPoint) point;
-      SummaryDataPoint.Builder builder =
-          SummaryDataPoint.newBuilder()
+      DoubleHistogramDataPoint.Builder builder =
+          DoubleHistogramDataPoint.newBuilder()
               .setStartTimeUnixNano(summaryPoint.getStartEpochNanos())
               .setTimeUnixNano(summaryPoint.getEpochNanos())
               .setCount(summaryPoint.getCount())
               .setSum(summaryPoint.getSum());
-      // Not calling directly addAllLabels because that generates couple of unnecessary allocations
-      // if empty list.
-      Collection<StringKeyValue> labels = toProtoLabels(summaryPoint.getLabels());
+      List<StringKeyValue> labels = toProtoLabels(summaryPoint.getLabels());
       if (!labels.isEmpty()) {
         builder.addAllLabels(labels);
       }
       // Not calling directly addAllPercentileValues because that generates couple of unnecessary
       // allocations if empty list.
-      List<ValueAtPercentile> valueAtPercentiles =
-          toProtoValueAtPercentiles(summaryPoint.getPercentileValues());
-      if (!valueAtPercentiles.isEmpty()) {
-        builder.addAllPercentileValues(valueAtPercentiles);
+      if (!summaryPoint.getPercentileValues().isEmpty()) {
+        addBucketValues(summaryPoint.getPercentileValues(), builder);
       }
       result.add(builder.build());
     }
@@ -200,48 +208,33 @@ final class MetricAdapter {
 
   // TODO: Consider to pass the Builder and directly add values.
   @SuppressWarnings("MixedMutabilityReturnType")
-  static List<ValueAtPercentile> toProtoValueAtPercentiles(
-      Collection<MetricData.ValueAtPercentile> valueAtPercentiles) {
-    if (valueAtPercentiles.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ValueAtPercentile> result = new ArrayList<>(valueAtPercentiles.size());
-    for (MetricData.ValueAtPercentile valueAtPercentile : valueAtPercentiles) {
-      result.add(
-          ValueAtPercentile.newBuilder()
-              .setPercentile(valueAtPercentile.getPercentile())
-              .setValue(valueAtPercentile.getValue())
-              .build());
-    }
-    return result;
-  }
+  static void addBucketValues(
+      List<MetricData.ValueAtPercentile> valueAtPercentiles,
+      DoubleHistogramDataPoint.Builder builder) {
 
-  static MetricDescriptor.Type toProtoMetricDescriptorType(Descriptor.Type descriptorType) {
-    switch (descriptorType) {
-      case NON_MONOTONIC_LONG:
-        return Type.GAUGE_INT64;
-      case NON_MONOTONIC_DOUBLE:
-        return Type.GAUGE_DOUBLE;
-      case MONOTONIC_LONG:
-        return Type.COUNTER_INT64;
-      case MONOTONIC_DOUBLE:
-        return Type.COUNTER_DOUBLE;
-      case SUMMARY:
-        return Type.SUMMARY;
+    for (MetricData.ValueAtPercentile valueAtPercentile : valueAtPercentiles) {
+      // TODO(jkwatson): Value of histogram should be long?
+      builder.addBucketCounts((long) valueAtPercentile.getValue());
+      builder.addExplicitBounds(valueAtPercentile.getPercentile());
     }
-    return Type.UNSPECIFIED;
+
+    // No recordings past the highest percentile (e.g., [highest percentile, +infinity]).
+    builder.addBucketCounts(0);
   }
 
   @SuppressWarnings("MixedMutabilityReturnType")
-  static Collection<StringKeyValue> toProtoLabels(Map<String, String> labels) {
+  static List<StringKeyValue> toProtoLabels(Labels labels) {
     if (labels.isEmpty()) {
       return Collections.emptyList();
     }
-    List<StringKeyValue> result = new ArrayList<>(labels.size());
-    for (Map.Entry<String, String> entry : labels.entrySet()) {
-      result.add(
-          StringKeyValue.newBuilder().setKey(entry.getKey()).setValue(entry.getValue()).build());
-    }
+    final List<StringKeyValue> result = new ArrayList<>(labels.size());
+    labels.forEach(
+        new LabelConsumer() {
+          @Override
+          public void consume(String key, String value) {
+            result.add(StringKeyValue.newBuilder().setKey(key).setValue(value).build());
+          }
+        });
     return result;
   }
 

@@ -1,17 +1,6 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim.testbed;
@@ -19,13 +8,12 @@ package io.opentelemetry.opentracingshim.testbed;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.common.AttributeKey;
 import io.opentelemetry.exporters.inmemory.InMemorySpanExporter;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.trace.Span.Kind;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -37,76 +25,27 @@ public final class TestUtils {
 
   /** Returns the number of finished {@code Span}s in the specified {@code InMemorySpanExporter}. */
   public static Callable<Integer> finishedSpansSize(final InMemorySpanExporter exporter) {
-    return new Callable<Integer>() {
-      @Override
-      public Integer call() {
-        return exporter.getFinishedSpanItems().size();
-      }
-    };
+    return () -> exporter.getFinishedSpanItems().size();
   }
 
   /** Returns a {@code List} with the {@code Span} matching the specified attribute. */
-  public static List<SpanData> getByAttr(
-      List<SpanData> spans, final String key, final Object value) {
+  public static <T> List<SpanData> getByAttr(
+      List<SpanData> spans, final AttributeKey<T> key, final T value) {
     return getByCondition(
         spans,
-        new Condition() {
-          @Override
-          public boolean check(SpanData span) {
-            AttributeValue attrValue = span.getAttributes().get(key);
-            if (attrValue == null) {
-              return false;
-            }
-
-            switch (attrValue.getType()) {
-              case STRING:
-                return value.equals(attrValue.getStringValue());
-              case LONG:
-                return value.equals(attrValue.getLongValue());
-              case BOOLEAN:
-                return value.equals(attrValue.getBooleanValue());
-              case DOUBLE:
-                return value.equals(attrValue.getDoubleValue());
-              case STRING_ARRAY:
-                return value.equals(attrValue.getStringArrayValue());
-              case LONG_ARRAY:
-                return value.equals(attrValue.getLongArrayValue());
-              case BOOLEAN_ARRAY:
-                return value.equals(attrValue.getBooleanArrayValue());
-              case DOUBLE_ARRAY:
-                return value.equals(attrValue.getDoubleArrayValue());
-            }
-
+        spanData -> {
+          T attrValue = spanData.getAttributes().get(key);
+          if (attrValue == null) {
             return false;
           }
+
+          return value.equals(attrValue);
         });
-  }
-
-  /**
-   * Returns one {@code Span} instance matching the specified attribute. In case of more than one
-   * instance being matched, an {@code IllegalArgumentException} will be thrown.
-   */
-  @Nullable
-  public static SpanData getOneByAttr(List<SpanData> spans, String key, Object value) {
-    List<SpanData> found = getByAttr(spans, key, value);
-    if (found.size() > 1) {
-      throw new IllegalArgumentException(
-          "there is more than one span with tag '" + key + "' and value '" + value + "'");
-    }
-
-    return found.isEmpty() ? null : found.get(0);
   }
 
   /** Returns a {@code List} with the {@code Span} matching the specified kind. */
   public static List<SpanData> getByKind(List<SpanData> spans, final Kind kind) {
-    return getByCondition(
-        spans,
-        new Condition() {
-          @Override
-          public boolean check(SpanData span) {
-            return span.getKind() == kind;
-          }
-        });
+    return getByCondition(spans, span -> span.getKind() == kind);
   }
 
   /**
@@ -126,14 +65,7 @@ public final class TestUtils {
 
   /** Returns a {@code List} with the {@code Span} matching the specified name. */
   private static List<SpanData> getByName(List<SpanData> spans, final String name) {
-    return getByCondition(
-        spans,
-        new Condition() {
-          @Override
-          public boolean check(SpanData span) {
-            return span.getName().equals(name);
-          }
-        });
+    return getByCondition(spans, span -> span.getName().equals(name));
   }
 
   /**
@@ -193,13 +125,7 @@ public final class TestUtils {
   public static List<SpanData> sortByStartTime(List<SpanData> spans) {
     List<SpanData> sortedSpans = new ArrayList<>(spans);
     Collections.sort(
-        sortedSpans,
-        new Comparator<SpanData>() {
-          @Override
-          public int compare(SpanData o1, SpanData o2) {
-            return Long.compare(o1.getStartEpochNanos(), o2.getStartEpochNanos());
-          }
-        });
+        sortedSpans, (o1, o2) -> Long.compare(o1.getStartEpochNanos(), o2.getStartEpochNanos()));
     return sortedSpans;
   }
 

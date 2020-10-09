@@ -1,34 +1,21 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.trace;
 
-import static com.google.common.truth.Truth.assertThat;
+import static io.opentelemetry.trace.BigendianEncoding.LONG_BASE16;
+import static io.opentelemetry.trace.BigendianEncoding.LONG_BYTES;
+import static java.nio.CharBuffer.wrap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.CharBuffer;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for {@link BigendianEncoding}. */
-@RunWith(JUnit4.class)
-public class BigendianEncodingTest {
-  @Rule public ExpectedException thrown = ExpectedException.none();
+class BigendianEncodingTest {
 
   private static final long FIRST_LONG = 0x1213141516171819L;
   private static final byte[] FIRST_BYTE_ARRAY =
@@ -69,15 +56,16 @@ public class BigendianEncodingTest {
       };
 
   @Test
-  public void longToByteArray_Fails() {
+  void longToByteArray_Fails() {
     // These contain bytes not in the decoding.
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("array too small");
-    BigendianEncoding.longToByteArray(123, new byte[BigendianEncoding.LONG_BYTES], 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BigendianEncoding.longToByteArray(123, new byte[LONG_BYTES], 1),
+        "array too small");
   }
 
   @Test
-  public void longToByteArray() {
+  void longToByteArray() {
     byte[] result1 = new byte[BigendianEncoding.LONG_BYTES];
     BigendianEncoding.longToByteArray(FIRST_LONG, result1, 0);
     assertThat(result1).isEqualTo(FIRST_BYTE_ARRAY);
@@ -93,15 +81,16 @@ public class BigendianEncodingTest {
   }
 
   @Test
-  public void longFromByteArray_ArrayToSmall() {
+  void longFromByteArray_ArrayToSmall() {
     // These contain bytes not in the decoding.
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("array too small");
-    BigendianEncoding.longFromByteArray(new byte[BigendianEncoding.LONG_BYTES], 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BigendianEncoding.longFromByteArray(new byte[LONG_BYTES], 1),
+        "array too small");
   }
 
   @Test
-  public void longFromByteArray() {
+  void longFromByteArray() {
     assertThat(BigendianEncoding.longFromByteArray(FIRST_BYTE_ARRAY, 0)).isEqualTo(FIRST_LONG);
 
     assertThat(BigendianEncoding.longFromByteArray(SECOND_BYTE_ARRAY, 0)).isEqualTo(SECOND_LONG);
@@ -113,7 +102,7 @@ public class BigendianEncodingTest {
   }
 
   @Test
-  public void toFromByteArray() {
+  void toFromByteArray() {
     toFromByteArrayValidate(0x8000000000000000L);
     toFromByteArrayValidate(-1);
     toFromByteArrayValidate(0);
@@ -122,7 +111,7 @@ public class BigendianEncodingTest {
   }
 
   @Test
-  public void longToBase16String() {
+  void longToBase16String() {
     char[] chars1 = new char[BigendianEncoding.LONG_BASE16];
     BigendianEncoding.longToBase16String(FIRST_LONG, chars1, 0);
     assertThat(chars1).isEqualTo(FIRST_CHAR_ARRAY);
@@ -138,24 +127,33 @@ public class BigendianEncodingTest {
   }
 
   @Test
-  public void longFromBase16String_InputTooSmall() {
+  void longFromBase16String_InputTooSmall() {
     // Valid base16 strings always have an even length.
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("chars too small");
-    BigendianEncoding.longFromBase16String(
-        CharBuffer.wrap(new char[BigendianEncoding.LONG_BASE16]), 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BigendianEncoding.longFromBase16String(wrap(new char[LONG_BASE16]), 1),
+        "chars too small");
   }
 
   @Test
-  public void longFromBase16String_UnrecongnizedCharacters() {
+  void longFromBase16String_UnrecognizedCharacters() {
     // These contain bytes not in the decoding.
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("invalid character g");
-    BigendianEncoding.longFromBase16String("0123456789gbcdef", 0);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BigendianEncoding.longFromBase16String("0123456789gbcdef", 0),
+        "invalid character g");
   }
 
   @Test
-  public void longFromBase16String() {
+  void validHex() {
+    assertThat(BigendianEncoding.isValidBase16String("abcdef1234567890")).isTrue();
+    assertThat(BigendianEncoding.isValidBase16String("abcdefg1234567890")).isFalse();
+    assertThat(BigendianEncoding.isValidBase16String("<abcdef1234567890")).isFalse();
+    assertThat(BigendianEncoding.isValidBase16String("abcdef1234567890B")).isFalse();
+  }
+
+  @Test
+  void longFromBase16String() {
     assertThat(BigendianEncoding.longFromBase16String(CharBuffer.wrap(FIRST_CHAR_ARRAY), 0))
         .isEqualTo(FIRST_LONG);
 
@@ -172,7 +170,7 @@ public class BigendianEncodingTest {
   }
 
   @Test
-  public void toFromBase16String() {
+  void toFromBase16String() {
     toFromBase16StringValidate(0x8000000000000000L);
     toFromBase16StringValidate(-1);
     toFromBase16StringValidate(0);

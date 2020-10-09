@@ -1,17 +1,6 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.sdk.example;
@@ -21,8 +10,8 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.MultiSpanProcessor;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
-import io.opentelemetry.sdk.trace.export.BatchSpansProcessor;
-import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.trace.Tracer;
 import java.util.Arrays;
 
@@ -41,11 +30,11 @@ public class ConfigureSpanProcessorExample {
     // Example how to configure the default SpanProcessors.
     defaultSpanProcessors();
     // After this method, the following SpanProcessors are registered:
-    // - SimpleSpansProcessor
-    // - BatchSpansProcessor
+    // - SimpleSpanProcessor
+    // - BatchSpanProcessor
     // - MultiSpanProcessor <- this is a container for other SpanProcessors
-    // |-- SimpleSpansProcessor
-    // |-- BatchSpansProcessor
+    // |-- SimpleSpanProcessor
+    // |-- BatchSpanProcessor
 
     // We generate a single Span so we can see some output on the console.
     // Since there are 4 different SpanProcessor registered, this Span is exported 4 times.
@@ -67,12 +56,12 @@ public class ConfigureSpanProcessorExample {
 
     // Configure the simple spans processor. This span processor exports span immediately after they
     // are ended.
-    SimpleSpansProcessor simpleSpansProcessor = SimpleSpansProcessor.newBuilder(exporter).build();
+    SimpleSpanProcessor simpleSpansProcessor = SimpleSpanProcessor.newBuilder(exporter).build();
     tracerProvider.addSpanProcessor(simpleSpansProcessor);
 
     // Configure the batch spans processor. This span processor exports span in batches.
-    BatchSpansProcessor batchSpansProcessor =
-        BatchSpansProcessor.newBuilder(exporter)
+    BatchSpanProcessor batchSpansProcessor =
+        BatchSpanProcessor.newBuilder(exporter)
             .setExportOnlySampled(true) // send to the exporter only spans that have been sampled
             .setMaxExportBatchSize(512) // set the maximum batch size to use
             .setMaxQueueSize(2048) // set the queue size. This must be >= the export batch size

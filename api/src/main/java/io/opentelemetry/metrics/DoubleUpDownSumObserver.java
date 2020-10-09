@@ -1,23 +1,11 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.metrics;
 
-import io.opentelemetry.metrics.DoubleUpDownSumObserver.ResultDoubleUpDownSumObserver;
-import java.util.Map;
+import io.opentelemetry.metrics.AsynchronousInstrument.DoubleResult;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -36,7 +24,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * <pre>{@code
  * class YourClass {
  *
- *   private static final Meter meter = OpenTelemetry.getMeterRegistry().get("my_library_name");
+ *   private static final Meter meter = OpenTelemetry.getMeterProvider().get("my_library_name");
  *   private static final DoubleUpDownSumObserver memoryObserver =
  *       meter.
  *           .doubleUpDownSumObserverBuilder("memory_usage")
@@ -46,9 +34,9 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  *   void init() {
  *     memoryObserver.setCallback(
- *         new DoubleUpDownSumObserver.Callback<ResultDoubleUpDownSumObserver>() {
+ *         new DoubleUpDownSumObserver.Callback<DoubleResult>() {
  *          {@literal @}Override
- *           public void update(ResultDoubleUpDownSumObserver result) {
+ *           public void update(DoubleResult result) {
  *             // Get system memory usage
  *             result.observe(memoryUsed, "state", "used");
  *             result.observe(memoryFree, "state", "free");
@@ -61,10 +49,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 0.1.0
  */
 @ThreadSafe
-public interface DoubleUpDownSumObserver
-    extends AsynchronousInstrument<ResultDoubleUpDownSumObserver> {
+public interface DoubleUpDownSumObserver extends AsynchronousInstrument<DoubleResult> {
   @Override
-  void setCallback(Callback<ResultDoubleUpDownSumObserver> callback);
+  void setCallback(Callback<DoubleResult> callback);
 
   /** Builder class for {@link DoubleUpDownSumObserver}. */
   interface Builder extends AsynchronousInstrument.Builder {
@@ -75,14 +62,6 @@ public interface DoubleUpDownSumObserver
     Builder setUnit(String unit);
 
     @Override
-    Builder setConstantLabels(Map<String, String> constantLabels);
-
-    @Override
     DoubleUpDownSumObserver build();
-  }
-
-  /** The result for the {@link Callback}. */
-  interface ResultDoubleUpDownSumObserver {
-    void observe(double sum, String... keyValueLabelPairs);
   }
 }

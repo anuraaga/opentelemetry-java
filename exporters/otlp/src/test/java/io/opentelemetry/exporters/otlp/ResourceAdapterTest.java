@@ -1,75 +1,60 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.exporters.otlp;
 
-import static com.google.common.truth.Truth.assertThat;
+import static io.opentelemetry.common.AttributeKey.booleanKey;
+import static io.opentelemetry.common.AttributeKey.doubleKey;
+import static io.opentelemetry.common.AttributeKey.longKey;
+import static io.opentelemetry.common.AttributeKey.stringKey;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import io.opentelemetry.common.AttributeValue;
-import io.opentelemetry.proto.common.v1.AttributeKeyValue;
-import io.opentelemetry.proto.common.v1.AttributeKeyValue.ValueType;
+import io.opentelemetry.common.Attributes;
+import io.opentelemetry.proto.common.v1.AnyValue;
+import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.sdk.resources.Resource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for {@link ResourceAdapter}. */
-@RunWith(JUnit4.class)
-public class ResourceAdapterTest {
+class ResourceAdapterTest {
   @Test
-  public void toProtoResource() {
+  void toProtoResource() {
     assertThat(
             ResourceAdapter.toProtoResource(
                     Resource.create(
-                        ImmutableMap.of(
-                            "key_bool",
-                            AttributeValue.booleanAttributeValue(true),
-                            "key_string",
-                            AttributeValue.stringAttributeValue("string"),
-                            "key_int",
-                            AttributeValue.longAttributeValue(100),
-                            "key_double",
-                            AttributeValue.doubleAttributeValue(100.3))))
+                        Attributes.of(
+                            booleanKey("key_bool"),
+                            true,
+                            stringKey("key_string"),
+                            "string",
+                            longKey("key_int"),
+                            100L,
+                            doubleKey("key_double"),
+                            100.3)))
                 .getAttributesList())
-        .containsExactly(
-            AttributeKeyValue.newBuilder()
+        .containsExactlyInAnyOrder(
+            KeyValue.newBuilder()
                 .setKey("key_bool")
-                .setBoolValue(true)
-                .setType(ValueType.BOOL)
+                .setValue(AnyValue.newBuilder().setBoolValue(true).build())
                 .build(),
-            AttributeKeyValue.newBuilder()
+            KeyValue.newBuilder()
                 .setKey("key_string")
-                .setStringValue("string")
-                .setType(ValueType.STRING)
+                .setValue(AnyValue.newBuilder().setStringValue("string").build())
                 .build(),
-            AttributeKeyValue.newBuilder()
+            KeyValue.newBuilder()
                 .setKey("key_int")
-                .setIntValue(100)
-                .setType(ValueType.INT)
+                .setValue(AnyValue.newBuilder().setIntValue(100).build())
                 .build(),
-            AttributeKeyValue.newBuilder()
+            KeyValue.newBuilder()
                 .setKey("key_double")
-                .setDoubleValue(100.3)
-                .setType(ValueType.DOUBLE)
+                .setValue(AnyValue.newBuilder().setDoubleValue(100.3).build())
                 .build());
   }
 
   @Test
-  public void toProtoResource_Empty() {
+  void toProtoResource_Empty() {
     assertThat(ResourceAdapter.toProtoResource(Resource.getEmpty()))
         .isEqualTo(io.opentelemetry.proto.resource.v1.Resource.newBuilder().build());
   }

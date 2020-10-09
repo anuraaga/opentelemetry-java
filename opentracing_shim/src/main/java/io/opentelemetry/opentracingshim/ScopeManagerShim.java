@@ -1,21 +1,11 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim;
 
+import io.opentelemetry.trace.DefaultSpan;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
@@ -33,7 +23,7 @@ final class ScopeManagerShim extends BaseShimObject implements ScopeManager {
     // we need to do an explicit check against DefaultSpan,
     // which is used in OpenTelemetry for this very case.
     io.opentelemetry.trace.Span span = tracer().getCurrentSpan();
-    if (io.opentelemetry.trace.DefaultSpan.getInvalid().equals(span)) {
+    if (DefaultSpan.getInvalid().equals(span)) {
       return null;
     }
 

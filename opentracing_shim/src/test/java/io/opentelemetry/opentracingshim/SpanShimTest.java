@@ -1,70 +1,60 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim;
 
 import static io.opentelemetry.opentracingshim.TestUtils.getBaggageMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.opentelemetry.OpenTelemetry;
-import io.opentelemetry.sdk.correlationcontext.CorrelationContextManagerSdk;
+import io.opentelemetry.sdk.baggage.BaggageManagerSdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
+import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.Tracer;
 import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SpanShimTest {
+class SpanShimTest {
   private final TracerSdkProvider tracerSdkFactory = TracerSdkProvider.builder().build();
   private final Tracer tracer = tracerSdkFactory.get("SpanShimTest");
   private final TelemetryInfo telemetryInfo =
-      new TelemetryInfo(tracer, new CorrelationContextManagerSdk(), OpenTelemetry.getPropagators());
-  private io.opentelemetry.trace.Span span;
+      new TelemetryInfo(tracer, new BaggageManagerSdk(), OpenTelemetry.getPropagators());
+  private Span span;
 
   private static final String SPAN_NAME = "Span";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     span = telemetryInfo.tracer().spanBuilder(SPAN_NAME).startSpan();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     span.end();
   }
 
   @Test
-  public void context_simple() {
+  void context_simple() {
     SpanShim spanShim = new SpanShim(telemetryInfo, span);
 
     SpanContextShim contextShim = (SpanContextShim) spanShim.context();
     assertNotNull(contextShim);
     assertEquals(contextShim.getSpanContext(), span.getContext());
-    assertEquals(contextShim.toTraceId(), span.getContext().getTraceId().toString());
-    assertEquals(contextShim.toSpanId(), span.getContext().getSpanId().toString());
+    assertEquals(contextShim.toTraceId(), span.getContext().getTraceIdAsHexString().toString());
+    assertEquals(contextShim.toSpanId(), span.getContext().getSpanIdAsHexString().toString());
     assertFalse(contextShim.baggageItems().iterator().hasNext());
   }
 
   @Test
-  public void baggage() {
+  void baggage() {
     SpanShim spanShim = new SpanShim(telemetryInfo, span);
 
     spanShim.setBaggageItem("key1", "value1");
@@ -81,7 +71,7 @@ public class SpanShimTest {
   }
 
   @Test
-  public void baggage_replacement() {
+  void baggage_replacement() {
     SpanShim spanShim = new SpanShim(telemetryInfo, span);
     SpanContextShim contextShim1 = (SpanContextShim) spanShim.context();
 
@@ -93,12 +83,12 @@ public class SpanShimTest {
   }
 
   @Test
-  public void baggage_differentShimObjs() {
+  void baggage_differentShimObjs() {
     SpanShim spanShim1 = new SpanShim(telemetryInfo, span);
     spanShim1.setBaggageItem("key1", "value1");
 
     /* Baggage should be synchronized among different SpanShim objects
-     * refering to the same Span.*/
+     * referring to the same Span.*/
     SpanShim spanShim2 = new SpanShim(telemetryInfo, span);
     spanShim2.setBaggageItem("key1", "value2");
     assertEquals(spanShim1.getBaggageItem("key1"), "value2");

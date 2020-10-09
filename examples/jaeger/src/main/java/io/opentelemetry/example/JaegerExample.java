@@ -5,7 +5,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.opentelemetry.OpenTelemetry;
 import io.opentelemetry.exporters.jaeger.JaegerGrpcSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.Tracer;
 
@@ -38,7 +38,7 @@ public class JaegerExample {
 
     // Set to process the spans by the Jaeger Exporter
     OpenTelemetrySdk.getTracerProvider()
-        .addSpanProcessor(SimpleSpansProcessor.newBuilder(this.jaegerExporter).build());
+        .addSpanProcessor(SimpleSpanProcessor.newBuilder(this.jaegerExporter).build());
   }
 
   private void myWonderfulUseCase() {
@@ -58,6 +58,11 @@ public class JaegerExample {
     }
   }
 
+  // graceful shutdown
+  public void shutdown() {
+    OpenTelemetrySdk.getTracerProvider().shutdown();
+  }
+
   public static void main(String[] args) {
     // Parsing the input
     if (args.length < 2) {
@@ -71,11 +76,10 @@ public class JaegerExample {
     JaegerExample example = new JaegerExample(ip, port);
     example.setupJaegerExporter();
     example.myWonderfulUseCase();
-    // wait some seconds
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-    }
+
+    // Shutdown example
+    example.shutdown();
+
     System.out.println("Bye");
   }
 }

@@ -1,106 +1,106 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.metrics;
 
+import static io.opentelemetry.metrics.DefaultMeter.ERROR_MESSAGE_INVALID_NAME;
+import static java.util.Arrays.fill;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import io.opentelemetry.OpenTelemetry;
+import io.opentelemetry.common.Labels;
 import io.opentelemetry.metrics.LongValueRecorder.BoundLongValueRecorder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /** Tests for {@link LongValueRecorder}. */
-@RunWith(JUnit4.class)
 public final class LongValueRecorderTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final String NAME = "name";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
-  private static final Map<String, String> CONSTANT_LABELS =
-      Collections.singletonMap("key", "value");
-
-  private final Meter meter = OpenTelemetry.getMeter("LongValueRecorderTest");
+  private static final Meter meter = OpenTelemetry.getMeter("LongValueRecorderTest");
 
   @Test
-  public void preventNonPrintableMeasureName() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(DefaultMeter.ERROR_MESSAGE_INVALID_NAME);
-    meter.longValueRecorderBuilder("\2").build();
+  void preventNull_Name() {
+    assertThrows(NullPointerException.class, () -> meter.longValueRecorderBuilder(null), "name");
   }
 
   @Test
-  public void preventTooLongName() {
+  void preventEmpty_Name() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> meter.longValueRecorderBuilder("").build(),
+        ERROR_MESSAGE_INVALID_NAME);
+  }
+
+  @Test
+  void preventNonPrintableMeasureName() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> meter.longValueRecorderBuilder("\2").build(),
+        ERROR_MESSAGE_INVALID_NAME);
+  }
+
+  @Test
+  void preventTooLongName() {
     char[] chars = new char[256];
-    Arrays.fill(chars, 'a');
+    fill(chars, 'a');
     String longName = String.valueOf(chars);
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(DefaultMeter.ERROR_MESSAGE_INVALID_NAME);
-    meter.longValueRecorderBuilder(longName).build();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> meter.longValueRecorderBuilder(longName).build(),
+        ERROR_MESSAGE_INVALID_NAME);
   }
 
   @Test
-  public void preventNull_Description() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("description");
-    meter.longValueRecorderBuilder("metric").setDescription(null).build();
+  void preventNull_Description() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.longValueRecorderBuilder("metric").setDescription(null).build(),
+        "description");
   }
 
   @Test
-  public void preventNull_Unit() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("unit");
-    meter.longValueRecorderBuilder("metric").setUnit(null).build();
+  void preventNull_Unit() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.longValueRecorderBuilder("metric").setUnit(null).build(),
+        "unit");
   }
 
   @Test
-  public void preventNull_ConstantLabels() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("constantLabels");
-    meter.longValueRecorderBuilder("metric").setConstantLabels(null).build();
+  void record_PreventNullLabels() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.longValueRecorderBuilder("metric").build().record(1, null),
+        "labels");
   }
 
   @Test
-  public void recordDoesNotThrow() {
+  void record_DoesNotThrow() {
     LongValueRecorder longValueRecorder =
-        meter
-            .longValueRecorderBuilder(NAME)
-            .setDescription(DESCRIPTION)
-            .setUnit(UNIT)
-            .setConstantLabels(CONSTANT_LABELS)
-            .build();
+        meter.longValueRecorderBuilder(NAME).setDescription(DESCRIPTION).setUnit(UNIT).build();
+    longValueRecorder.record(5, Labels.empty());
+    longValueRecorder.record(-5, Labels.empty());
     longValueRecorder.record(5);
     longValueRecorder.record(-5);
   }
 
   @Test
-  public void boundDoesNotThrow() {
+  void bound_PreventNullLabels() {
+    assertThrows(
+        NullPointerException.class,
+        () -> meter.longValueRecorderBuilder("metric").build().bind(null),
+        "labels");
+  }
+
+  @Test
+  void bound_DoesNotThrow() {
     LongValueRecorder longValueRecorder =
-        meter
-            .longValueRecorderBuilder(NAME)
-            .setDescription(DESCRIPTION)
-            .setUnit(UNIT)
-            .setConstantLabels(CONSTANT_LABELS)
-            .build();
-    BoundLongValueRecorder bound = longValueRecorder.bind();
+        meter.longValueRecorderBuilder(NAME).setDescription(DESCRIPTION).setUnit(UNIT).build();
+    BoundLongValueRecorder bound = longValueRecorder.bind(Labels.empty());
     bound.record(5);
     bound.record(-5);
     bound.unbind();

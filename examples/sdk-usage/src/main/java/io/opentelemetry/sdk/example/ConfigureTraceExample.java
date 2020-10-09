@@ -1,38 +1,25 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.sdk.example;
 
-import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.common.ReadableAttributes;
 import io.opentelemetry.exporters.logging.LoggingSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.Sampler;
 import io.opentelemetry.sdk.trace.Samplers;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
-import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.trace.Link;
 import io.opentelemetry.trace.Span;
+import io.opentelemetry.trace.Span.Kind;
 import io.opentelemetry.trace.SpanContext;
-import io.opentelemetry.trace.SpanId;
 import io.opentelemetry.trace.TraceId;
 import io.opentelemetry.trace.Tracer;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 class ConfigureTraceExample {
 
@@ -42,7 +29,7 @@ class ConfigureTraceExample {
 
   static {
     tracerProvider.addSpanProcessor(
-        SimpleSpansProcessor.newBuilder(new LoggingSpanExporter()).build());
+        SimpleSpanProcessor.newBuilder(new LoggingSpanExporter()).build());
   }
 
   public static void main(String[] args) {
@@ -112,29 +99,15 @@ class ConfigureTraceExample {
     class MySampler implements Sampler {
 
       @Override
-      public Decision shouldSample(
+      public SamplingResult shouldSample(
           SpanContext parentContext,
           TraceId traceId,
-          SpanId spanId,
           String name,
-          Span.Kind spanKind,
-          Map<String, AttributeValue> attributes,
+          Kind spanKind,
+          ReadableAttributes attributes,
           List<Link> parentLinks) {
-        // We sample only if the Span name contains "SAMPLE"
-        return new Decision() {
-
-          @Override
-          public boolean isSampled() {
-            return name.contains("SAMPLE");
-          }
-
-          @Override
-          public Map<String, AttributeValue> getAttributes() {
-            // This method MUST return an immutable list of Attributes
-            // that will be added to the generated Span.
-            return Collections.emptyMap();
-          }
-        };
+        return Samplers.emptySamplingResult(
+            name.contains("SAMPLE") ? Decision.RECORD_AND_SAMPLED : Decision.NOT_RECORD);
       }
 
       @Override

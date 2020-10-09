@@ -1,42 +1,34 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.opentelemetry.baggage.Baggage;
+import io.opentelemetry.baggage.BaggageManager;
+import io.opentelemetry.baggage.DefaultBaggageManager;
+import io.opentelemetry.baggage.spi.BaggageManagerFactory;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.DefaultContextPropagators;
-import io.opentelemetry.correlationcontext.CorrelationContext;
-import io.opentelemetry.correlationcontext.CorrelationContextManager;
-import io.opentelemetry.correlationcontext.DefaultCorrelationContextManager;
-import io.opentelemetry.correlationcontext.spi.CorrelationContextManagerFactory;
 import io.opentelemetry.metrics.BatchRecorder;
 import io.opentelemetry.metrics.DefaultMeterProvider;
 import io.opentelemetry.metrics.DoubleCounter;
 import io.opentelemetry.metrics.DoubleSumObserver;
 import io.opentelemetry.metrics.DoubleUpDownCounter;
 import io.opentelemetry.metrics.DoubleUpDownSumObserver;
+import io.opentelemetry.metrics.DoubleValueObserver;
 import io.opentelemetry.metrics.DoubleValueRecorder;
 import io.opentelemetry.metrics.LongCounter;
 import io.opentelemetry.metrics.LongSumObserver;
 import io.opentelemetry.metrics.LongUpDownCounter;
 import io.opentelemetry.metrics.LongUpDownSumObserver;
+import io.opentelemetry.metrics.LongValueObserver;
 import io.opentelemetry.metrics.LongValueRecorder;
 import io.opentelemetry.metrics.Meter;
 import io.opentelemetry.metrics.MeterProvider;
@@ -52,49 +44,39 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
 import javax.annotation.Nullable;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-@RunWith(JUnit4.class)
-public class OpenTelemetryTest {
+class OpenTelemetryTest {
 
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  @BeforeClass
-  public static void beforeClass() {
+  @BeforeAll
+  static void beforeClass() {
     OpenTelemetry.reset();
   }
 
-  @After
-  public void after() {
+  @AfterEach
+  void after() {
     OpenTelemetry.reset();
     System.clearProperty(TracerProviderFactory.class.getName());
     System.clearProperty(MeterProviderFactory.class.getName());
-    System.clearProperty(CorrelationContextManagerFactory.class.getName());
+    System.clearProperty(BaggageManagerFactory.class.getName());
   }
 
   @Test
-  public void testDefault() {
+  void testDefault() {
     assertThat(OpenTelemetry.getTracerProvider()).isInstanceOf(DefaultTracerProvider.class);
-    assertThat(OpenTelemetry.getTracerProvider())
-        .isSameInstanceAs(OpenTelemetry.getTracerProvider());
+    assertThat(OpenTelemetry.getTracerProvider()).isSameAs(OpenTelemetry.getTracerProvider());
     assertThat(OpenTelemetry.getMeterProvider()).isInstanceOf(DefaultMeterProvider.class);
-    assertThat(OpenTelemetry.getMeterProvider()).isSameInstanceAs(OpenTelemetry.getMeterProvider());
-    assertThat(OpenTelemetry.getCorrelationContextManager())
-        .isInstanceOf(DefaultCorrelationContextManager.class);
-    assertThat(OpenTelemetry.getCorrelationContextManager())
-        .isSameInstanceAs(OpenTelemetry.getCorrelationContextManager());
+    assertThat(OpenTelemetry.getMeterProvider()).isSameAs(OpenTelemetry.getMeterProvider());
+    assertThat(OpenTelemetry.getBaggageManager()).isInstanceOf(DefaultBaggageManager.class);
+    assertThat(OpenTelemetry.getBaggageManager()).isSameAs(OpenTelemetry.getBaggageManager());
     assertThat(OpenTelemetry.getPropagators()).isInstanceOf(DefaultContextPropagators.class);
-    assertThat(OpenTelemetry.getPropagators()).isSameInstanceAs(OpenTelemetry.getPropagators());
+    assertThat(OpenTelemetry.getPropagators()).isSameAs(OpenTelemetry.getPropagators());
   }
 
   @Test
-  public void testTracerLoadArbitrary() throws IOException {
+  void testTracerLoadArbitrary() throws IOException {
     File serviceFile =
         createService(
             TracerProviderFactory.class,
@@ -111,7 +93,7 @@ public class OpenTelemetryTest {
   }
 
   @Test
-  public void testTracerSystemProperty() throws IOException {
+  void testTracerSystemProperty() throws IOException {
     File serviceFile =
         createService(
             TracerProviderFactory.class,
@@ -128,14 +110,13 @@ public class OpenTelemetryTest {
   }
 
   @Test
-  public void testTracerNotFound() {
+  void testTracerNotFound() {
     System.setProperty(TracerProviderFactory.class.getName(), "io.does.not.exists");
-    thrown.expect(IllegalStateException.class);
-    OpenTelemetry.getTracer("testTracer");
+    assertThrows(IllegalStateException.class, () -> OpenTelemetry.getTracer("testTracer"));
   }
 
   @Test
-  public void testMeterLoadArbitrary() throws IOException {
+  void testMeterLoadArbitrary() throws IOException {
     File serviceFile =
         createService(
             MeterProviderFactory.class,
@@ -152,7 +133,7 @@ public class OpenTelemetryTest {
   }
 
   @Test
-  public void testMeterSystemProperty() throws IOException {
+  void testMeterSystemProperty() throws IOException {
     File serviceFile =
         createService(
             MeterProviderFactory.class,
@@ -169,69 +150,56 @@ public class OpenTelemetryTest {
   }
 
   @Test
-  public void testMeterNotFound() {
+  void testMeterNotFound() {
     System.setProperty(MeterProviderFactory.class.getName(), "io.does.not.exists");
-    thrown.expect(IllegalStateException.class);
-    OpenTelemetry.getMeterProvider();
+    assertThrows(IllegalStateException.class, () -> OpenTelemetry.getMeterProvider());
   }
 
   @Test
-  public void testCorrelationContextManagerLoadArbitrary() throws IOException {
+  void testBaggageManagerLoadArbitrary() throws IOException {
     File serviceFile =
         createService(
-            CorrelationContextManagerFactory.class,
-            FirstCorrelationContextManager.class,
-            SecondCorrelationContextManager.class);
+            BaggageManagerFactory.class, FirstBaggageManager.class, SecondBaggageManager.class);
     try {
       assertTrue(
-          (OpenTelemetry.getCorrelationContextManager() instanceof FirstCorrelationContextManager)
-              || (OpenTelemetry.getCorrelationContextManager()
-                  instanceof SecondCorrelationContextManager));
-      assertThat(OpenTelemetry.getCorrelationContextManager())
-          .isEqualTo(OpenTelemetry.getCorrelationContextManager());
+          (OpenTelemetry.getBaggageManager() instanceof FirstBaggageManager)
+              || (OpenTelemetry.getBaggageManager() instanceof SecondBaggageManager));
+      assertThat(OpenTelemetry.getBaggageManager()).isEqualTo(OpenTelemetry.getBaggageManager());
     } finally {
       serviceFile.delete();
     }
   }
 
   @Test
-  public void testCorrelationContextManagerSystemProperty() throws IOException {
+  void testBaggageManagerSystemProperty() throws IOException {
     File serviceFile =
         createService(
-            CorrelationContextManagerFactory.class,
-            FirstCorrelationContextManager.class,
-            SecondCorrelationContextManager.class);
-    System.setProperty(
-        CorrelationContextManagerFactory.class.getName(),
-        SecondCorrelationContextManager.class.getName());
+            BaggageManagerFactory.class, FirstBaggageManager.class, SecondBaggageManager.class);
+    System.setProperty(BaggageManagerFactory.class.getName(), SecondBaggageManager.class.getName());
     try {
-      assertThat(OpenTelemetry.getCorrelationContextManager())
-          .isInstanceOf(SecondCorrelationContextManager.class);
-      assertThat(OpenTelemetry.getCorrelationContextManager())
-          .isEqualTo(OpenTelemetry.getCorrelationContextManager());
+      assertThat(OpenTelemetry.getBaggageManager()).isInstanceOf(SecondBaggageManager.class);
+      assertThat(OpenTelemetry.getBaggageManager()).isEqualTo(OpenTelemetry.getBaggageManager());
     } finally {
       serviceFile.delete();
     }
   }
 
   @Test
-  public void testCorrelationContextManagerNotFound() {
-    System.setProperty(CorrelationContextManagerFactory.class.getName(), "io.does.not.exists");
-    thrown.expect(IllegalStateException.class);
-    OpenTelemetry.getCorrelationContextManager();
+  void testBaggageManagerNotFound() {
+    System.setProperty(BaggageManagerFactory.class.getName(), "io.does.not.exists");
+    assertThrows(IllegalStateException.class, () -> OpenTelemetry.getBaggageManager());
   }
 
   @Test
-  public void testPropagatorsSet() {
+  void testPropagatorsSet() {
     ContextPropagators propagators = DefaultContextPropagators.builder().build();
     OpenTelemetry.setPropagators(propagators);
     assertThat(OpenTelemetry.getPropagators()).isEqualTo(propagators);
   }
 
   @Test
-  public void testPropagatorsSetNull() {
-    thrown.expect(NullPointerException.class);
-    OpenTelemetry.setPropagators(null);
+  void testPropagatorsSetNull() {
+    assertThrows(NullPointerException.class, () -> OpenTelemetry.setPropagators(null));
   }
 
   private static File createService(Class<?> service, Class<?>... impls) throws IOException {
@@ -388,6 +356,18 @@ public class OpenTelemetryTest {
 
     @Nullable
     @Override
+    public DoubleValueObserver.Builder doubleValueObserverBuilder(String name) {
+      return null;
+    }
+
+    @Nullable
+    @Override
+    public LongValueObserver.Builder longValueObserverBuilder(String name) {
+      return null;
+    }
+
+    @Nullable
+    @Override
     public BatchRecorder newBatchRecorder(String... keyValuePairs) {
       return null;
     }
@@ -403,35 +383,34 @@ public class OpenTelemetryTest {
     }
   }
 
-  public static class SecondCorrelationContextManager extends FirstCorrelationContextManager {
+  public static class SecondBaggageManager extends FirstBaggageManager {
     @Override
-    public CorrelationContextManager create() {
-      return new SecondCorrelationContextManager();
+    public BaggageManager create() {
+      return new SecondBaggageManager();
     }
   }
 
-  public static class FirstCorrelationContextManager
-      implements CorrelationContextManager, CorrelationContextManagerFactory {
+  public static class FirstBaggageManager implements BaggageManager, BaggageManagerFactory {
     @Override
-    public CorrelationContextManager create() {
-      return new FirstCorrelationContextManager();
+    public BaggageManager create() {
+      return new FirstBaggageManager();
     }
 
     @Nullable
     @Override
-    public CorrelationContext getCurrentContext() {
+    public Baggage getCurrentBaggage() {
       return null;
     }
 
     @Nullable
     @Override
-    public CorrelationContext.Builder contextBuilder() {
+    public Baggage.Builder baggageBuilder() {
       return null;
     }
 
     @Nullable
     @Override
-    public Scope withContext(CorrelationContext distContext) {
+    public Scope withBaggage(Baggage baggage) {
       return null;
     }
   }

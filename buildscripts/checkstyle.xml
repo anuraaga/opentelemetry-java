@@ -20,12 +20,6 @@
 
     <property name="severity" value="error"/>
 
-
-    <module name="RegexpHeader">
-        <property name="headerFile" value="${rootDir}/buildscripts/checkstyle.license"/>
-        <property name="fileExtensions" value="java"/>
-    </module>
-
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
@@ -77,6 +71,7 @@
         </module>
         <module name="WhitespaceAround">
             <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
             <property name="allowEmptyMethods" value="true"/>
             <property name="allowEmptyTypes" value="true"/>
             <property name="allowEmptyLoops" value="true"/>

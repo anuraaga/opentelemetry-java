@@ -1,30 +1,19 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim.testbed.latespanfinish;
 
 import static io.opentelemetry.opentracingshim.testbed.TestUtils.assertSameTrace;
 import static io.opentelemetry.opentracingshim.testbed.TestUtils.sleep;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.opentelemetry.exporters.inmemory.InMemoryTracing;
 import io.opentelemetry.opentracingshim.TraceShim;
-import io.opentelemetry.sdk.correlationcontext.CorrelationContextManagerSdk;
+import io.opentelemetry.sdk.baggage.BaggageManagerSdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentracing.Scope;
@@ -34,18 +23,18 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("FutureReturnValueIgnored")
 public final class LateSpanFinishTest {
   private final TracerSdkProvider sdk = TracerSdkProvider.builder().build();
   private final InMemoryTracing inMemoryTracing =
-      InMemoryTracing.builder().setTracerProvider(sdk).build();
-  private final Tracer tracer = TraceShim.createTracerShim(sdk, new CorrelationContextManagerSdk());
+      InMemoryTracing.builder().setTracerSdkManagement(sdk).build();
+  private final Tracer tracer = TraceShim.createTracerShim(sdk, new BaggageManagerSdk());
   private final ExecutorService executor = Executors.newCachedThreadPool();
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     // Create a Span manually and use it as parent of a pair of subtasks
     Span parentSpan = tracer.buildSpan("parent").start();
     submitTasks(parentSpan);
@@ -76,33 +65,27 @@ public final class LateSpanFinishTest {
   private void submitTasks(final Span parentSpan) {
 
     executor.submit(
-        new Runnable() {
-          @Override
-          public void run() {
-            /* Alternative to calling activate() is to pass it manually to asChildOf() for each
-             * created Span. */
-            try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
-              Span childSpan = tracer.buildSpan("task1").start();
-              try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
-                sleep(55);
-              } finally {
-                childSpan.finish();
-              }
+        () -> {
+          /* Alternative to calling activate() is to pass it manually to asChildOf() for each
+           * created Span. */
+          try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+            Span childSpan = tracer.buildSpan("task1").start();
+            try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
+              sleep(55);
+            } finally {
+              childSpan.finish();
             }
           }
         });
 
     executor.submit(
-        new Runnable() {
-          @Override
-          public void run() {
-            try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
-              Span childSpan = tracer.buildSpan("task2").start();
-              try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
-                sleep(85);
-              } finally {
-                childSpan.finish();
-              }
+        () -> {
+          try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+            Span childSpan = tracer.buildSpan("task2").start();
+            try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
+              sleep(85);
+            } finally {
+              childSpan.finish();
             }
           }
         });

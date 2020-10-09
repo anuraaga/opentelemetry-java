@@ -1,17 +1,6 @@
 /*
- * Copyright 2020, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.trace;
@@ -45,11 +34,9 @@ public class DefaultTracerBenchmarks {
   @Warmup(iterations = 5, time = 1)
   public void measureFullSpanLifecycle() {
     span = tracer.spanBuilder("span").startSpan();
-    io.opentelemetry.context.Scope ignored = tracer.withSpan(span);
-    try {
+    try (io.opentelemetry.context.Scope ignored = tracer.withSpan(span)) {
       // no-op
     } finally {
-      ignored.close();
       span.end();
     }
   }
@@ -72,11 +59,8 @@ public class DefaultTracerBenchmarks {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Warmup(iterations = 5, time = 1)
   public void measureScopeLifecycle() {
-    io.opentelemetry.context.Scope ignored = tracer.withSpan(span);
-    try {
+    try (io.opentelemetry.context.Scope ignored = tracer.withSpan(span)) {
       // no-op
-    } finally {
-      ignored.close();
     }
   }
 

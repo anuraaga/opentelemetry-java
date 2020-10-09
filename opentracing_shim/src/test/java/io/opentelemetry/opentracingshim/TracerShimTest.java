@@ -1,25 +1,14 @@
 /*
- * Copyright 2019, OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package io.opentelemetry.opentracingshim;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.opentelemetry.OpenTelemetry;
 import io.opentelemetry.trace.DefaultSpan;
@@ -31,24 +20,24 @@ import io.opentracing.propagation.TextMapAdapter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TracerShimTest {
+class TracerShimTest {
   TracerShim tracerShim;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     tracerShim =
         new TracerShim(
             new TelemetryInfo(
                 OpenTelemetry.getTracer("opentracingshim"),
-                OpenTelemetry.getCorrelationContextManager(),
+                OpenTelemetry.getBaggageManager(),
                 OpenTelemetry.getPropagators()));
   }
 
   @Test
-  public void defaultTracer() {
+  void defaultTracer() {
     assertNotNull(tracerShim.buildSpan("one"));
     assertNotNull(tracerShim.scopeManager());
     assertNull(tracerShim.activeSpan());
@@ -56,7 +45,7 @@ public class TracerShimTest {
   }
 
   @Test
-  public void activateSpan() {
+  void activateSpan() {
     Span otSpan = tracerShim.buildSpan("one").start();
     io.opentelemetry.trace.Span span = ((SpanShim) otSpan).getSpan();
 
@@ -75,22 +64,21 @@ public class TracerShimTest {
   }
 
   @Test
-  public void extract_nullContext() {
+  void extract_nullContext() {
     SpanContext result =
-        tracerShim.extract(
-            Format.Builtin.TEXT_MAP, new TextMapAdapter(Collections.<String, String>emptyMap()));
+        tracerShim.extract(Format.Builtin.TEXT_MAP, new TextMapAdapter(Collections.emptyMap()));
     assertNull(result);
   }
 
   @Test
-  public void inject_nullContext() {
+  void inject_nullContext() {
     Map<String, String> map = new HashMap<>();
     tracerShim.inject(null, Format.Builtin.TEXT_MAP, new TextMapAdapter(map));
     assertEquals(0, map.size());
   }
 
   @Test
-  public void close() {
+  void close() {
     tracerShim.close();
     Span otSpan = tracerShim.buildSpan(null).start();
     io.opentelemetry.trace.Span span = ((SpanShim) otSpan).getSpan();
