@@ -92,6 +92,7 @@ subprojects {
             }
         }
 
+        /*
         // Snapshot publishing.
         artifactory {
             contextUrl = 'https://oss.jfrog.org'
@@ -111,6 +112,7 @@ subprojects {
                 repoKey = 'libs-release'
             }
         }
+         */
 
         // Release artifacts publishing.
         bintray {
