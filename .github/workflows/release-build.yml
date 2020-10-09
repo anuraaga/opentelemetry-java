@@ -7,9 +7,10 @@ on:
 
 jobs:
   build:
+    name: Build and release
     runs-on: ubuntu-latest
     env:
-      ORG_GRADLE_PROJECT_release_version: ${{ github.event.inputs.version }}
+      ORG_GRADLE_PROJECT_release.version: ${{ github.event.inputs.version }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -21,9 +22,11 @@ jobs:
         with:
           job-id: jdk8
           remote-build-cache-proxy-enabled: false
-          arguments: build --stacktrace
+          arguments: prepareRelease build --stacktrace
           properties: |
             enable.docker.tests=true
+      - name: Commit README updates
+        run: git commit "Releasing ${{ github.event.inputs.version }}"
       - name: Publish artifacts
         run: ./gradlew final --stacktrace
         env:
