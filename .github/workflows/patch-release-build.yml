@@ -1,0 +1,62 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to tag the release with, e.g., 1.2.1, 1.2.2
+        required: true
+      commits:
+        description: Comma separated list of commit shas to cherrypick
+        required: true
+
+jobs:
+  prepare-release-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - id: parse-release-branch
+        name: Parse release branch name
+        # Sets the release-branch-name output to the version number with the last non-period element replaced with an 'x'.
+        run: echo "::set-output name=release-branch-name::$(echo '${{ github.event.inputs.version }}' | sed -E 's/([^.]+)\.([^.]+)\.([^.]+)/\1.\2.x/')"
+      - name: Check out release branch
+        uses: actions/checkout@v2
+        ref: ${{ steps.parse-release-branch.outputs.release-branch-name }}
+      - name: Check out release tag
+        if: ${{ failure() }}
+        uses: actions/checkout@v2
+        ref: ${{ github.event.inputs.version }}
+      - name: Create release branch
+        run: |
+          git checkout -b ${{ steps.parse-release-branch.outputs.release-branch-name }}
+          git push
+  build:
+    runs-on: ubuntu-latest
+    needs: prepare-release-branch
+    env:
+      ORG_GRADLE_PROJECT_release_version: ${{ github.event.inputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+        ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.releaes-branch-name }}
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Cherrypicks
+        run: |
+          echo ${{ github.event.inputs.commits }} | sed -n 1'p' | tr ',' '\n' | while read word; do
+              # Trim whitespaces and cherrypick
+              echo $word | sed 's/ *$//g' | sed 's/^ *//g'
+          done
+      - uses: burrunan/gradle-cache-action@v1.5
+        with:
+          job-id: jdk8
+          remote-build-cache-proxy-enabled: false
+          arguments: build --stacktrace
+          properties: |
+            enable.docker.tests=true
+      - name: Publish artifacts
+        run: ./gradlew final --stacktrace
+        env:
+          CI: true
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
+      - run: git push
