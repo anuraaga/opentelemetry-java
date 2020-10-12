@@ -484,3 +484,5 @@ tasks.register("prepareRelease") {
         file("README.md").text = updatedText
     }
 }
+
+// Foo1
