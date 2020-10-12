@@ -18,12 +18,14 @@ jobs:
         run: echo "::set-output name=release-branch-name::$(echo '${{ github.event.inputs.version }}' | sed -E 's/([^.]+)\.([^.]+)\.([^.]+)/\1.\2.x/')"
       - name: Check out release branch
         uses: actions/checkout@v2
-        ref: ${{ steps.parse-release-branch.outputs.release-branch-name }}
+        with:
+          ref: ${{ steps.parse-release-branch.outputs.release-branch-name }}
       - id: checkout-release-tag
         name: Check out release tag
         if: ${{ failure() }}
         uses: actions/checkout@v2
-        ref: ${{ github.event.inputs.version }}
+        with:
+          ref: ${{ github.event.inputs.version }}
       - name: Create release branch
         if: ${{ steps.checkout-release-tag.conclusion == "success" }}
         run: |
@@ -34,8 +36,8 @@ jobs:
     needs: prepare-release-branch
     steps:
       - uses: actions/checkout@v2
-        ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.outputs.release-branch-name }}
         with:
+          ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.outputs.release-branch-name }}
           submodules: true
       - uses: actions/setup-java@v1
         with:
