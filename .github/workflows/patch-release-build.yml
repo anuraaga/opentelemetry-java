@@ -19,18 +19,20 @@ jobs:
           echo "::set-output name=release-branch-name::$(echo '${{ github.event.inputs.version }}' | sed -E 's/([^.]+)\.([^.]+)\.([^.]+)/v\1.\2.x/')"
           # Sets the release-tag-name output to the version number with the last non-period element replace with a '0' and prepended with v
           echo "::set-output name=release-tag-name::$(echo '${{ github.event.inputs.version }}' | sed -E 's/([^.]+)\.([^.]+)\.([^.]+)/v\1.\2.0/')"
-      - name: Check out release branch
+      - id: checkout-release-branch
+        name: Check out release branch
+        continue-on-error: true
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.parse-release-branch.outputs.release-branch-name }}
       - id: checkout-release-tag
         name: Check out release tag
-        if: ${{ failure() }}
+        if: ${{ steps.checkout-release-branch.outcome == 'failure' }}
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.parse-release-branch.outputs.release-tag-name }}
       - name: Create release branch
-        if: ${{ steps.checkout-release-tag.conclusion == 'success' }}
+        if: ${{ steps.checkout-release-tag.outcome == 'success' }}
         run: |
           git checkout -b ${{ steps.parse-release-branch.outputs.release-branch-name }}
           git push
