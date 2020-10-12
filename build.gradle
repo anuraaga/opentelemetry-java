@@ -472,7 +472,7 @@ tasks.register("prepareRelease") {
     doLast {
         def versionParts = version.toString().split('\\.')
         def minorVersionNumber = Integer.parseInt(versionParts[1])
-        def nextSnapshot = "${versionParts[0]}.${minorVersionNumber + 1}.${versionParts[2]}-SNAPSHOT"
+        def nextSnapshot = "${versionParts[0]}.${minorVersionNumber + 1}.0-SNAPSHOT"
 
         def readmeText = file("README.md").text
         def updatedText = readmeText
@@ -484,6 +484,3 @@ tasks.register("prepareRelease") {
         file("README.md").text = updatedText
     }
 }
-
-// Foo1
-// Foo2

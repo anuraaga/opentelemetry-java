@@ -46,41 +46,6 @@ You will see a button that says "Run workflow". Press the button, enter the vers
 to release in the input field for version that pops up and the commits you want to cherrypick for the
 patch as a comma-separated list. Then, press "Run workflow".
 
-First, check if there is already a release branch for the version you are patching [here](https://github.com/open-telemetry/opentelemetry-java/branches).
-The release branch would look something like `v1.1.x`, where the major and minor version are for the
-previous non-patch release.
-
-If a release branch does not exist, you will need to create one. Fetch the tag, check it out, and
-then checkout a branch off of it.
-
-```bash
-$ git fetch --tags
-$ git checkout v1.1.0
-$ git checkout v1.1.x
-```
-
-If the release branch already existed, just check it out
-
-```bash
-$ git fetch upstream v1.1.x
-$ git checkout v1.1.x
-```
-
-To cherry-pick one commit use the following
-instructions:
-
-- Create and push a tag:
-
-```bash
-COMMIT=1224f0a # Set the right commit hash.
-git cherry-pick -x $COMMIT
-git commit -a -m "Cherry-pick commit $COMMIT"
-```
-
-- Go through PR review and merge it to GitHub v$MAJOR.$MINOR.x branch.
-
-- Tag a new patch release when all commits are merged.
-
 ## Release candidates
 
 Release candidate artifacts are released using the same process described above. The version schema for release candidates
