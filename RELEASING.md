@@ -13,7 +13,7 @@ a git tag with the version number.
 
 ## Announcement
    
-Once the GitHub workflow com,pletes, go to Github [release
+Once the GitHub workflow completes, go to Github [release
 page](https://github.com/open-telemetry/opentelemetry-java/releases), press
 `Draft a new release` to write release notes about the new release. If there is already a draft
 release notes, just point it at the created tag.
@@ -39,6 +39,12 @@ on master branch.
 
 All patch releases should include only bug-fixes, and must avoid
 adding/modifying the public APIs. 
+
+Open the patch release build workflow in your browser [here](https://github.com/open-telemetry/opentelemetry-java/actions?query=workflow%3A%22Patch+Release+Build%22).
+
+You will see a button that says "Run workflow". Press the button, enter the version number you want
+to release in the input field for version that pops up and the commits you want to cherrypick for the
+patch as a comma-separated list. Then, press "Run workflow".
 
 First, check if there is already a release branch for the version you are patching [here](https://github.com/open-telemetry/opentelemetry-java/branches).
 The release branch would look something like `v1.1.x`, where the major and minor version are for the
@@ -99,5 +105,6 @@ export BINTRAY_USER=my_bintray_user
 export BINTRAY_KEY=my_user_api_key
 export SONATYPE_USER=my_maven_user
 export SONATYPE_KEY=my_maven_password
-make publish-release-artifacts
+export RELEASE_VERSION=2.4.5 # Set version you want to release
+./gradlew final -Prelease.version=${RELEASE_VERSION}
 ```

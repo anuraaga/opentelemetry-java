@@ -1,3 +1,4 @@
+name: Patch Release Build
 on:
   workflow_dispatch:
     inputs:
@@ -65,7 +66,7 @@ jobs:
         with:
           job-id: jdk11
           remote-build-cache-proxy-enabled: false
-          arguments: prepareRelease build --stacktrace -Prelease.version=${{ github.event.inputs.version }}
+          arguments: build --stacktrace -Prelease.version=${{ github.event.inputs.version }}
           properties: |
             enable.docker.tests=true
       - name: Publish artifacts
@@ -77,3 +78,16 @@ jobs:
           GRGIT_USER: ${{ github.actor }}
           GRGIT_PASS: ${{ secrets.GITHUB_TOKEN }}
       - run: git push
+      - name: Checkout master
+        uses: actions/checkout@v2
+        with:
+           submodules: true
+      - uses: burrunan/gradle-cache-action@v1.5
+        with:
+          job-id: jdk11
+          remote-build-cache-proxy-enabled: false
+          arguments: prepareRelease --stacktrace -Prelease.version=${{ github.event.inputs.version }}
+      - name: Commit README changes
+        run: |
+          git commit -am "README update for patch release ${{ github.event.inputs.version }}"
+          git push
