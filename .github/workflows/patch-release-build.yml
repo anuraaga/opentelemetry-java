@@ -27,7 +27,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.version }}
       - name: Create release branch
-        if: ${{ steps.checkout-release-tag.conclusion == "success" }}
+        if: ${{ steps.checkout-release-tag.conclusion == 'success' }}
         run: |
           git checkout -b ${{ steps.parse-release-branch.outputs.release-branch-name }}
           git push
