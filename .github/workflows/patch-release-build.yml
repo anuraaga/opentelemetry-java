@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ jobs.prepare-release-branch.steps.parse-release-branch.outputs.release-branch-name }}
+          ref: ${{ needs.prepare-release-branch.outputs.release-branch-name }}
           submodules: true
       - uses: actions/setup-java@v1
         with:
