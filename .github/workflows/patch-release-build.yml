@@ -49,6 +49,7 @@ jobs:
           java-version: 11
       - name: Cherrypicks
         run: |
+          git fetch origin master
           echo ${{ github.event.inputs.commits }} | sed -n 1'p' | tr ',' '\n' | while read word; do
               # Trim whitespaces and cherrypick
               echo $word | sed 's/ *$//g' | sed 's/^ *//g' | git cherry-pick --stdin
