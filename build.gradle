@@ -18,6 +18,10 @@ release {
     defaultVersionStrategy = Strategies.getSNAPSHOT()
 }
 
+nebulaRelease {
+    addReleaseBranchPattern(/v\d+\.\d+\.x/)
+}
+
 def releaseTask = tasks.named("release")
 releaseTask.configure {
     mustRunAfter("snapshotSetup", "finalSetup")
