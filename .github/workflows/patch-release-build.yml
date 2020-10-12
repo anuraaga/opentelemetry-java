@@ -19,11 +19,13 @@ jobs:
       - name: Check out release branch
         uses: actions/checkout@v2
         ref: ${{ steps.parse-release-branch.outputs.release-branch-name }}
-      - name: Check out release tag
+      - id: checkout-release-tag
+        name: Check out release tag
         if: ${{ failure() }}
         uses: actions/checkout@v2
         ref: ${{ github.event.inputs.version }}
       - name: Create release branch
+        if: ${{ steps.checkout-release-tag.conclusion == "success" }}
         run: |
           git checkout -b ${{ steps.parse-release-branch.outputs.release-branch-name }}
           git push
