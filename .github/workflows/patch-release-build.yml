@@ -51,7 +51,7 @@ jobs:
         run: |
           echo ${{ github.event.inputs.commits }} | sed -n 1'p' | tr ',' '\n' | while read word; do
               # Trim whitespaces and cherrypick
-              echo $word | sed 's/ *$//g' | sed 's/^ *//g' | git cherry-pick
+              echo $word | sed 's/ *$//g' | sed 's/^ *//g' | git cherry-pick --stdin
           done
       - uses: burrunan/gradle-cache-action@v1.5
         with:
@@ -68,4 +68,3 @@ jobs:
           BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
           GRGIT_USER: ${{ github.actor }}
           GRGIT_PASS: ${{ secrets.GITHUB_TOKEN }}
-      - run: git push
