@@ -71,6 +71,15 @@ import javax.annotation.concurrent.ThreadSafe;
 public interface ContextPropagators {
 
   /**
+   * Returns a {@link ContextPropagatorsBuilder} to create a default {@link ContextPropagators} that
+   * executes all registered {@link TextMapPropagator} synchronously, in order.
+   */
+  @SuppressWarnings("deprecation")
+  static ContextPropagatorsBuilder builder() {
+    return DefaultContextPropagators.builder();
+  }
+
+  /**
    * Returns a {@link TextMapPropagator} propagator.
    *
    * <p>The returned value will be a composite instance containing all the registered {@link

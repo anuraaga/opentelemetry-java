@@ -10,7 +10,6 @@ import static java.util.Objects.requireNonNull;
 import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.context.propagation.DefaultContextPropagators;
 import io.opentelemetry.spi.OpenTelemetryFactory;
 import io.opentelemetry.spi.metrics.MeterProviderFactory;
 import io.opentelemetry.spi.trace.TracerProviderFactory;
@@ -118,7 +117,7 @@ final class DefaultOpenTelemetry implements OpenTelemetry {
   }
 
   static class Builder implements OpenTelemetryBuilder<Builder> {
-    private ContextPropagators propagators = DefaultContextPropagators.builder().build();
+    private ContextPropagators propagators = ContextPropagators.builder().build();
 
     private TracerProvider tracerProvider;
     private MeterProvider meterProvider;

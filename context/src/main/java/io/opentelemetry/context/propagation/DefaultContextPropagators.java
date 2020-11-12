@@ -14,14 +14,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * {@code DefaultContextPropagators} is the default, built-in implementation of {@link
- * ContextPropagators}.
+ * Default context propagators.
  *
- * <p>All the registered propagators are stored internally as a simple list, and are invoked
- * synchronically upon injection and extraction.
- *
- * <p>The propagation fields retrieved from all registered propagators are de-duplicated.
+ * @deprecated Use {@link ContextPropagators#builder()}.
  */
+@Deprecated
 public final class DefaultContextPropagators implements ContextPropagators {
   private final TextMapPropagator textMapPropagator;
 
@@ -31,13 +28,13 @@ public final class DefaultContextPropagators implements ContextPropagators {
   }
 
   /**
-   * Returns a {@link DefaultContextPropagators.Builder} to create a new {@link ContextPropagators}
-   * object.
+   * Create a builder for DefaultContextPropagators.
    *
-   * @return a {@link DefaultContextPropagators.Builder}.
+   * @deprecated Use {@link ContextPropagators#builder()}.
    */
+  @Deprecated
   public static Builder builder() {
-    return new Builder();
+    return new DefaultContextPropagators.Builder();
   }
 
   private DefaultContextPropagators(TextMapPropagator textMapPropagator) {
@@ -45,35 +42,15 @@ public final class DefaultContextPropagators implements ContextPropagators {
   }
 
   /**
-   * {@link Builder} is used to construct a new {@code ContextPropagators} object with the specified
-   * propagators.
+   * Builder for DefaultContextPropagators.
    *
-   * <p>Invocation order of {@code TextMapPropagator#inject()} and {@code
-   * TextMapPropagator#extract()} for registered trace propagators is undefined.
-   *
-   * <p>This is a example of a {@code ContextPropagators} object being created:
-   *
-   * <pre>{@code
-   * ContextPropagators propagators = DefaultContextPropagators.builder()
-   *     .addTextMapPropagator(new HttpTraceContext())
-   *     .addTextMapPropagator(new HttpBaggage())
-   *     .addTextMapPropagator(new MyCustomContextPropagator())
-   *     .build();
-   * }</pre>
+   * @deprecated Use {@link ContextPropagators#builder()}.
    */
-  public static final class Builder {
+  @Deprecated
+  public static final class Builder implements ContextPropagatorsBuilder {
     List<TextMapPropagator> textPropagators = new ArrayList<>();
 
-    /**
-     * Adds a {@link TextMapPropagator} propagator.
-     *
-     * <p>One propagator per concern (traces, correlations, etc) should be added if this format is
-     * supported.
-     *
-     * @param textMapPropagator the propagator to be added.
-     * @return this.
-     * @throws NullPointerException if {@code textMapPropagator} is {@code null}.
-     */
+    @Override
     public Builder addTextMapPropagator(TextMapPropagator textMapPropagator) {
       if (textMapPropagator == null) {
         throw new NullPointerException("textMapPropagator");
@@ -83,11 +60,7 @@ public final class DefaultContextPropagators implements ContextPropagators {
       return this;
     }
 
-    /**
-     * Builds a new {@code ContextPropagators} with the specified propagators.
-     *
-     * @return the newly created {@code ContextPropagators} instance.
-     */
+    @Override
     public ContextPropagators build() {
       if (textPropagators.isEmpty()) {
         return new DefaultContextPropagators(NoopTextMapPropagator.INSTANCE);
