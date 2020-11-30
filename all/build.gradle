@@ -67,7 +67,8 @@ jacocoTestReport {
     classDirectories.from = files(classDirectories.files.collect {
         fileTree(dir: it, excludes: [
                 // Ignore generated code
-                "io/opentelemetry/exporters/jaeger/proto/**"
+                "io/opentelemetry/api/trace/attributes/SemanticAttributes*",
+                "io/opentelemetry/exporters/jaeger/proto/**",
         ])
     })
 }
