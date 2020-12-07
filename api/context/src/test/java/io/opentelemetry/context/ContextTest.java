@@ -155,9 +155,11 @@ class ContextTest {
     // Old unaffected
     assertThat(context1.get(ANIMAL)).isEqualTo("cat");
     assertThat(context1.get(BAG)).isNull();
+    assertThat(context1.with(ANIMAL, "cat")).isSameAs(context1);
 
     assertThat(context2.get(ANIMAL)).isEqualTo("cat");
     assertThat(context2.get(BAG)).isEqualTo(100);
+    assertThat(context2.with(ANIMAL, "cat")).isSameAs(context2);
 
     Context context3 = context2.with(ANIMAL, "dog");
     // Old unaffected

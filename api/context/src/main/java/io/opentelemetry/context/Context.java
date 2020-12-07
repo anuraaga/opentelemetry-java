@@ -93,7 +93,7 @@ public interface Context {
    * is only a workaround hiding an underlying context propagation issue.
    */
   static Context root() {
-    return ArrayBasedContext.root();
+    return ContextImplementations.root();
   }
 
   /**
@@ -125,7 +125,8 @@ public interface Context {
    * number of keys and values — combine multiple related items together into a single key instead
    * of separating them. But if the items are unrelated, have separate keys for them.
    */
-  <V> Context with(ContextKey<V> k1, V v1);
+  @SuppressWarnings("InconsistentOverloads")
+  <V> Context with(ContextKey<V> key, V value);
 
   /** Returns a new {@link Context} with the given {@link ImplicitContextKeyed} set. */
   default Context with(ImplicitContextKeyed value) {
