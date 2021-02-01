@@ -46,20 +46,3 @@ dependencies {
     jmh("io.grpc:grpc-netty-shaded")
     jmh("org.testcontainers:testcontainers") // testContainer for OTLP collector
 }
-
-sourceSets {
-    main {
-        output.dir("build/generated/properties", "builtBy" to "generateVersionResource")
-    }
-}
-
-tasks {
-    register("generateVersionResource") {
-        val propertiesDir = file("build/generated/properties/io/opentelemetry/sdk/trace")
-        outputs.dir(propertiesDir)
-
-        doLast {
-            File(propertiesDir, "version.properties").writeText("sdk.version=${project.version}")
-        }
-    }
-}

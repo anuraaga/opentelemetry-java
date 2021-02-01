@@ -222,12 +222,29 @@ subprojects {
             }
 
             afterEvaluate {
+                val moduleName: String by project
                 withType(Jar::class) {
-                    val moduleName: String by project
                     inputs.property("moduleName", moduleName)
 
                     manifest {
                         attributes("Automatic-Module-Name" to moduleName)
+                    }
+                }
+
+                configure<JavaPluginConvention> {
+                    sourceSets {
+                        named(SourceSet.MAIN_SOURCE_SET_NAME) {
+                            output.dir("build/generated/properties", "builtBy" to "generateVersionResource")
+                        }
+                    }
+                }
+
+                register("generateVersionResource") {
+                    val propertiesDir = file("build/generated/properties/${moduleName.replace('.', '/')}")
+                    outputs.dir(propertiesDir)
+
+                    doLast {
+                        File(propertiesDir, "version.properties").writeText("version=${project.version}")
                     }
                 }
             }
