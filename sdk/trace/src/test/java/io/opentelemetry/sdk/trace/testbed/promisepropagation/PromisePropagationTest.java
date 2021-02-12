@@ -53,7 +53,7 @@ class PromisePropagationTest {
 
     try (PromiseContext context = new PromiseContext(phaser, 3)) {
       Span parentSpan = tracer.spanBuilder("promises").startSpan();
-      parentSpan.setAttribute("component", "example-promises");
+      parentSpan.putAttribute("component", "example-promises");
 
       try (Scope ignored = parentSpan.makeCurrent()) {
         Promise<String> successPromise = new Promise<>(context, tracer);

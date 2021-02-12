@@ -44,7 +44,7 @@ public class SpanAttributeTruncateBenchmark {
             tracer
                 .spanBuilder("benchmarkSpan")
                 .setSpanKind(SpanKind.CLIENT)
-                .setAttribute("key", "value");
+                .putAttribute("key", "value");
 
     String seed = "0123456789";
     StringBuilder longString = new StringBuilder();
@@ -64,7 +64,7 @@ public class SpanAttributeTruncateBenchmark {
   public RecordEventsReadableSpan shortAttributes() {
     RecordEventsReadableSpan span = (RecordEventsReadableSpan) sdkSpanBuilder.startSpan();
     for (int i = 0; i < 10; i++) {
-      span.setAttribute(String.valueOf(i), shortValue);
+      span.putAttribute(String.valueOf(i), shortValue);
     }
     return span;
   }
@@ -79,7 +79,7 @@ public class SpanAttributeTruncateBenchmark {
   public RecordEventsReadableSpan longAttributes() {
     RecordEventsReadableSpan span = (RecordEventsReadableSpan) sdkSpanBuilder.startSpan();
     for (int i = 0; i < 10; i++) {
-      span.setAttribute(String.valueOf(i), longValue);
+      span.putAttribute(String.valueOf(i), longValue);
     }
     return span;
   }
@@ -94,7 +94,7 @@ public class SpanAttributeTruncateBenchmark {
   public RecordEventsReadableSpan veryLongAttributes() {
     RecordEventsReadableSpan span = (RecordEventsReadableSpan) sdkSpanBuilder.startSpan();
     for (int i = 0; i < 10; i++) {
-      span.setAttribute(String.valueOf(i), veryLongValue);
+      span.putAttribute(String.valueOf(i), veryLongValue);
     }
     return span;
   }

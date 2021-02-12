@@ -48,7 +48,7 @@ public class SpanPipelineBenchmark {
     protected void doWork() {
       Span span = sdkSpanBuilder.startSpan();
       for (int i = 0; i < 10; i++) {
-        span.setAttribute("benchmarkAttribute_" + i, "benchmarkAttrValue_" + i);
+        span.putAttribute("benchmarkAttribute_" + i, "benchmarkAttrValue_" + i);
       }
       span.end();
     }

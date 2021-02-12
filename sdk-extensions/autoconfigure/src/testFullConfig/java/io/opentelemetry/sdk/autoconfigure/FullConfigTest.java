@@ -132,8 +132,8 @@ class FullConfigTest {
         .getTracer("test")
         .spanBuilder("test")
         .startSpan()
-        .setAttribute("cat", "meow")
-        .setAttribute("dog", "bark")
+        .putAttribute("cat", "meow")
+        .putAttribute("dog", "bark")
         .end();
 
     await()

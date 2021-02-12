@@ -61,17 +61,17 @@ public final class NestedCallbacksTest {
     executor.submit(
         () -> {
           try (Scope ignored = span.makeCurrent()) {
-            span.setAttribute("key1", "1");
+            span.putAttribute("key1", "1");
 
             executor.submit(
                 () -> {
                   try (Scope ignored12 = span.makeCurrent()) {
-                    span.setAttribute("key2", "2");
+                    span.putAttribute("key2", "2");
 
                     executor.submit(
                         () -> {
                           try (Scope ignored1 = span.makeCurrent()) {
-                            span.setAttribute("key3", "3");
+                            span.putAttribute("key3", "3");
                           } finally {
                             span.end();
                           }

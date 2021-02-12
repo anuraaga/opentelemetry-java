@@ -115,27 +115,27 @@ final class SdkSpanBuilder implements SpanBuilder {
   }
 
   @Override
-  public SpanBuilder setAttribute(String key, String value) {
-    return setAttribute(stringKey(key), value);
+  public SpanBuilder putAttribute(String key, String value) {
+    return putAttribute(stringKey(key), value);
   }
 
   @Override
-  public SpanBuilder setAttribute(String key, long value) {
-    return setAttribute(longKey(key), value);
+  public SpanBuilder putAttribute(String key, long value) {
+    return putAttribute(longKey(key), value);
   }
 
   @Override
-  public SpanBuilder setAttribute(String key, double value) {
-    return setAttribute(doubleKey(key), value);
+  public SpanBuilder putAttribute(String key, double value) {
+    return putAttribute(doubleKey(key), value);
   }
 
   @Override
-  public SpanBuilder setAttribute(String key, boolean value) {
-    return setAttribute(booleanKey(key), value);
+  public SpanBuilder putAttribute(String key, boolean value) {
+    return putAttribute(booleanKey(key), value);
   }
 
   @Override
-  public <T> SpanBuilder setAttribute(AttributeKey<T> key, T value) {
+  public <T> SpanBuilder putAttribute(AttributeKey<T> key, T value) {
     Objects.requireNonNull(key, "key");
     if (value == null) {
       return this;

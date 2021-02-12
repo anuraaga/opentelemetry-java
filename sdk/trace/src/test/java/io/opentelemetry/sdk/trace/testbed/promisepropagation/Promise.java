@@ -42,7 +42,7 @@ final class Promise<T> {
       context.submit(
           () -> {
             Span childSpan = tracer.spanBuilder("success").setParent(parent).startSpan();
-            childSpan.setAttribute("component", "success");
+            childSpan.putAttribute("component", "success");
             try (Scope ignored = childSpan.makeCurrent()) {
               callback.accept(result);
             } finally {
@@ -59,7 +59,7 @@ final class Promise<T> {
       context.submit(
           () -> {
             Span childSpan = tracer.spanBuilder("error").setParent(parent).startSpan();
-            childSpan.setAttribute("component", "error");
+            childSpan.putAttribute("component", "error");
             try (Scope ignored = childSpan.makeCurrent()) {
               callback.accept(error);
             } finally {

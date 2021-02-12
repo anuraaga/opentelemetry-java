@@ -216,17 +216,17 @@ public class OtlpPipelineStressTest {
       //    for (int i = 0; i < 10000; i++) {
       Span exampleSpan = tracer.spanBuilder("exampleSpan").startSpan();
       try (Scope scope = exampleSpan.makeCurrent()) {
-        exampleSpan.setAttribute("exampleNumber", i++);
-        exampleSpan.setAttribute("attribute0", "attvalue-0");
-        exampleSpan.setAttribute("attribute1", "attvalue-1");
-        exampleSpan.setAttribute("attribute2", "attvalue-2");
-        exampleSpan.setAttribute("attribute3", "attvalue-3");
-        exampleSpan.setAttribute("attribute4", "attvalue-4");
-        exampleSpan.setAttribute("attribute5", "attvalue-5");
-        exampleSpan.setAttribute("attribute6", "attvalue-6");
-        exampleSpan.setAttribute("attribute7", "attvalue-7");
-        exampleSpan.setAttribute("attribute8", "attvalue-8");
-        exampleSpan.setAttribute("attribute9", "attvalue-9");
+        exampleSpan.putAttribute("exampleNumber", i++);
+        exampleSpan.putAttribute("attribute0", "attvalue-0");
+        exampleSpan.putAttribute("attribute1", "attvalue-1");
+        exampleSpan.putAttribute("attribute2", "attvalue-2");
+        exampleSpan.putAttribute("attribute3", "attvalue-3");
+        exampleSpan.putAttribute("attribute4", "attvalue-4");
+        exampleSpan.putAttribute("attribute5", "attvalue-5");
+        exampleSpan.putAttribute("attribute6", "attvalue-6");
+        exampleSpan.putAttribute("attribute7", "attvalue-7");
+        exampleSpan.putAttribute("attribute8", "attvalue-8");
+        exampleSpan.putAttribute("attribute9", "attvalue-9");
         exampleSpan.addEvent("pre-sleep");
         Thread.sleep(1);
       } finally {

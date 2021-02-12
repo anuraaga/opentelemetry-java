@@ -72,31 +72,31 @@ final class DefaultTracer implements Tracer {
     }
 
     @Override
-    public NoopSpanBuilder setAttribute(String key, String value) {
+    public NoopSpanBuilder putAttribute(String key, String value) {
       Objects.requireNonNull(key, "key");
       return this;
     }
 
     @Override
-    public NoopSpanBuilder setAttribute(String key, long value) {
+    public NoopSpanBuilder putAttribute(String key, long value) {
       Objects.requireNonNull(key, "key");
       return this;
     }
 
     @Override
-    public NoopSpanBuilder setAttribute(String key, double value) {
+    public NoopSpanBuilder putAttribute(String key, double value) {
       Objects.requireNonNull(key, "key");
       return this;
     }
 
     @Override
-    public NoopSpanBuilder setAttribute(String key, boolean value) {
+    public NoopSpanBuilder putAttribute(String key, boolean value) {
       Objects.requireNonNull(key, "key");
       return this;
     }
 
     @Override
-    public <T> NoopSpanBuilder setAttribute(AttributeKey<T> key, T value) {
+    public <T> NoopSpanBuilder putAttribute(AttributeKey<T> key, T value) {
       Objects.requireNonNull(key, "key");
       Objects.requireNonNull(value, "value");
       return this;

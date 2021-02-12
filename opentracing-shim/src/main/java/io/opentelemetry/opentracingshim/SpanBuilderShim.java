@@ -211,7 +211,7 @@ final class SpanBuilderShim extends BaseShimObject implements SpanBuilder {
     for (int i = 0; i < this.spanBuilderAttributeKeys.size(); i++) {
       AttributeKey key = this.spanBuilderAttributeKeys.get(i);
       Object value = this.spanBuilderAttributeValues.get(i);
-      span.setAttribute(key, value);
+      span.putAttribute(key, value);
     }
     if (error) {
       span.setStatus(StatusCode.ERROR);

@@ -250,7 +250,7 @@ final class RecordEventsReadableSpan implements ReadWriteSpan {
   }
 
   @Override
-  public <T> ReadWriteSpan setAttribute(AttributeKey<T> key, T value) {
+  public <T> ReadWriteSpan putAttribute(AttributeKey<T> key, T value) {
     if (key == null || key.getKey() == null || key.getKey().length() == 0 || value == null) {
       return this;
     }

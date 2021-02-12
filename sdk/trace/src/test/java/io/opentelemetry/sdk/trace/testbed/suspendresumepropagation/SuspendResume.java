@@ -14,7 +14,7 @@ final class SuspendResume {
 
   public SuspendResume(int id, Tracer tracer) {
     Span span = tracer.spanBuilder("job " + id).startSpan();
-    span.setAttribute("component", "suspend-resume");
+    span.putAttribute("component", "suspend-resume");
     try (Scope scope = span.makeCurrent()) {
       this.span = span;
     }

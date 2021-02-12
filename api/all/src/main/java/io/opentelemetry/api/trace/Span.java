@@ -82,60 +82,60 @@ public interface Span extends ImplicitContextKeyed {
    * <p>If a null or empty String {@code value} is passed in, the behavior is undefined, and hence
    * strongly discouraged.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
    * @return this.
    */
-  default Span setAttribute(String key, @Nonnull String value) {
-    return setAttribute(AttributeKey.stringKey(key), value);
+  default Span putAttribute(String key, @Nonnull String value) {
+    return putAttribute(AttributeKey.stringKey(key), value);
   }
 
   /**
    * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping for
    * the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
    * @return this.
    */
-  default Span setAttribute(String key, long value) {
-    return setAttribute(AttributeKey.longKey(key), value);
+  default Span putAttribute(String key, long value) {
+    return putAttribute(AttributeKey.longKey(key), value);
   }
 
   /**
    * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping for
    * the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
    * @return this.
    */
-  default Span setAttribute(String key, double value) {
-    return setAttribute(AttributeKey.doubleKey(key), value);
+  default Span putAttribute(String key, double value) {
+    return putAttribute(AttributeKey.doubleKey(key), value);
   }
 
   /**
    * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping for
    * the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
    * @return this.
    */
-  default Span setAttribute(String key, boolean value) {
-    return setAttribute(AttributeKey.booleanKey(key), value);
+  default Span putAttribute(String key, boolean value) {
+    return putAttribute(AttributeKey.booleanKey(key), value);
   }
 
   /**
@@ -148,7 +148,7 @@ public interface Span extends ImplicitContextKeyed {
    * @param value the value for this attribute.
    * @return this.
    */
-  <T> Span setAttribute(AttributeKey<T> key, @Nonnull T value);
+  <T> Span putAttribute(AttributeKey<T> key, @Nonnull T value);
 
   /**
    * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping for
@@ -158,8 +158,8 @@ public interface Span extends ImplicitContextKeyed {
    * @param value the value for this attribute.
    * @return this.
    */
-  default Span setAttribute(AttributeKey<Long> key, int value) {
-    return setAttribute(key, (long) value);
+  default Span putAttribute(AttributeKey<Long> key, int value) {
+    return putAttribute(key, (long) value);
   }
 
   /**
@@ -385,7 +385,7 @@ public interface Span extends ImplicitContextKeyed {
 
   /**
    * Returns {@code true} if this {@code Span} records tracing events (e.g. {@link
-   * #addEvent(String)}, {@link #setAttribute(String, long)}).
+   * #addEvent(String)}, {@link #putAttribute(String, long)}).
    *
    * @return {@code true} if this {@code Span} records tracing events.
    */

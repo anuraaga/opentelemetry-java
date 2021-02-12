@@ -36,20 +36,20 @@ class PropagatedSpanTest {
   @Test
   void doNotCrash() {
     Span span = Span.getInvalid();
-    span.setAttribute(stringKey("MyStringAttributeKey"), "MyStringAttributeValue");
-    span.setAttribute(booleanKey("MyBooleanAttributeKey"), true);
-    span.setAttribute(longKey("MyLongAttributeKey"), 123L);
-    span.setAttribute(longKey("MyLongAttributeKey"), 123);
-    span.setAttribute("NullString", null);
-    span.setAttribute("EmptyString", "");
-    span.setAttribute("long", 1);
-    span.setAttribute("double", 1.0);
-    span.setAttribute("boolean", true);
-    span.setAttribute(stringArrayKey("NullArrayString"), null);
-    span.setAttribute(booleanArrayKey("NullArrayBoolean"), null);
-    span.setAttribute(longArrayKey("NullArrayLong"), null);
-    span.setAttribute(doubleArrayKey("NullArrayDouble"), null);
-    span.setAttribute((String) null, null);
+    span.putAttribute(stringKey("MyStringAttributeKey"), "MyStringAttributeValue");
+    span.putAttribute(booleanKey("MyBooleanAttributeKey"), true);
+    span.putAttribute(longKey("MyLongAttributeKey"), 123L);
+    span.putAttribute(longKey("MyLongAttributeKey"), 123);
+    span.putAttribute("NullString", null);
+    span.putAttribute("EmptyString", "");
+    span.putAttribute("long", 1);
+    span.putAttribute("double", 1.0);
+    span.putAttribute("boolean", true);
+    span.putAttribute(stringArrayKey("NullArrayString"), null);
+    span.putAttribute(booleanArrayKey("NullArrayBoolean"), null);
+    span.putAttribute(longArrayKey("NullArrayLong"), null);
+    span.putAttribute(doubleArrayKey("NullArrayDouble"), null);
+    span.putAttribute((String) null, null);
     span.addEvent("event");
     span.addEvent("event", 0, TimeUnit.NANOSECONDS);
     span.addEvent("event", Instant.EPOCH);

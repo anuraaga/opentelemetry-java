@@ -27,7 +27,7 @@ final class Client {
     Message message = new Message();
 
     Span span = tracer.spanBuilder("send").setSpanKind(SpanKind.CLIENT).startSpan();
-    span.setAttribute("component", "example-client");
+    span.putAttribute("component", "example-client");
 
     try (Scope ignored = span.makeCurrent()) {
       W3CTraceContextPropagator.getInstance().inject(Context.current(), message, Message::put);

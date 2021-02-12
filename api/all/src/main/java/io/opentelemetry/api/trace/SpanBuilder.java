@@ -167,7 +167,7 @@ public interface SpanBuilder {
    * <p>If a null or empty String {@code value} is passed in, the behavior is undefined, and hence
    * strongly discouraged.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
@@ -175,13 +175,13 @@ public interface SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code key} is {@code null}.
    */
-  SpanBuilder setAttribute(String key, @Nonnull String value);
+  SpanBuilder putAttribute(String key, @Nonnull String value);
 
   /**
    * Sets an attribute to the newly created {@code Span}. If {@code SpanBuilder} previously
    * contained a mapping for the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
@@ -189,13 +189,13 @@ public interface SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code key} is {@code null}.
    */
-  SpanBuilder setAttribute(String key, long value);
+  SpanBuilder putAttribute(String key, long value);
 
   /**
    * Sets an attribute to the newly created {@code Span}. If {@code SpanBuilder} previously
    * contained a mapping for the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
@@ -203,13 +203,13 @@ public interface SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code key} is {@code null}.
    */
-  SpanBuilder setAttribute(String key, double value);
+  SpanBuilder putAttribute(String key, double value);
 
   /**
    * Sets an attribute to the newly created {@code Span}. If {@code SpanBuilder} previously
    * contained a mapping for the key, the old value is replaced by the specified value.
    *
-   * <p>Note: It is strongly recommended to use {@link #setAttribute(AttributeKey, Object)}, and
+   * <p>Note: It is strongly recommended to use {@link #putAttribute(AttributeKey, Object)}, and
    * pre-allocate your keys, if possible.
    *
    * @param key the key for this attribute.
@@ -217,7 +217,7 @@ public interface SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code key} is {@code null}.
    */
-  SpanBuilder setAttribute(String key, boolean value);
+  SpanBuilder putAttribute(String key, boolean value);
 
   /**
    * Sets an attribute to the newly created {@code Span}. If {@code SpanBuilder} previously
@@ -231,7 +231,7 @@ public interface SpanBuilder {
    * @throws NullPointerException if {@code key} is {@code null}.
    * @throws NullPointerException if {@code value} is {@code null}.
    */
-  <T> SpanBuilder setAttribute(AttributeKey<T> key, @Nonnull T value);
+  <T> SpanBuilder putAttribute(AttributeKey<T> key, @Nonnull T value);
 
   /**
    * Sets the {@link SpanKind} for the newly created {@code Span}. If not called, the implementation

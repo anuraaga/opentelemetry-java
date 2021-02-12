@@ -291,7 +291,7 @@ class InteroperabilityTest {
             .startScopedSpan()) {
       OpenTelemetrySpanImpl span = (OpenTelemetrySpanImpl) tracer.getCurrentSpan();
       span.setStatus(StatusCode.ERROR);
-      span.setAttribute("testKey", "testValue");
+      span.putAttribute("testKey", "testValue");
       span.addEvent("OpenCensus span: Event 1");
       span.addEvent(
           "OpenCensus span: Event 2",

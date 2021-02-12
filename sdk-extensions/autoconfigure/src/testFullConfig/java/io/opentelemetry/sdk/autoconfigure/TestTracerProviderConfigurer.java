@@ -19,7 +19,7 @@ public class TestTracerProviderConfigurer implements SdkTracerProviderConfigurer
         new SpanProcessor() {
           @Override
           public void onStart(Context parentContext, ReadWriteSpan span) {
-            span.setAttribute("configured", true);
+            span.putAttribute("configured", true);
           }
 
           @Override

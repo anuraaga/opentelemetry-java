@@ -67,10 +67,10 @@ class OpenTelemetrySpanImpl extends Span implements io.opentelemetry.api.trace.S
     Preconditions.checkNotNull(key, "key");
     Preconditions.checkNotNull(value, "value");
     value.match(
-        arg -> otelSpan.setAttribute(key, arg),
-        arg -> otelSpan.setAttribute(key, arg),
-        arg -> otelSpan.setAttribute(key, arg),
-        arg -> otelSpan.setAttribute(key, arg),
+        arg -> otelSpan.putAttribute(key, arg),
+        arg -> otelSpan.putAttribute(key, arg),
+        arg -> otelSpan.putAttribute(key, arg),
+        arg -> otelSpan.putAttribute(key, arg),
         arg -> null);
   }
 
@@ -135,8 +135,8 @@ class OpenTelemetrySpanImpl extends Span implements io.opentelemetry.api.trace.S
   }
 
   @Override
-  public <T> io.opentelemetry.api.trace.Span setAttribute(AttributeKey<T> key, @Nonnull T value) {
-    return otelSpan.setAttribute(key, value);
+  public <T> io.opentelemetry.api.trace.Span putAttribute(AttributeKey<T> key, @Nonnull T value) {
+    return otelSpan.putAttribute(key, value);
   }
 
   @Override

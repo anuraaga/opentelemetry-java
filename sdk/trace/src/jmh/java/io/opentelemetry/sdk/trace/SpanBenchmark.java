@@ -44,7 +44,7 @@ public class SpanBenchmark {
     Tracer tracerSdk = tracerProvider.get("benchmarkTracer");
     sdkSpanBuilder =
         (SdkSpanBuilder)
-            tracerSdk.spanBuilder("benchmarkSpanBuilder").setAttribute("longAttribute", 33L);
+            tracerSdk.spanBuilder("benchmarkSpanBuilder").putAttribute("longAttribute", 33L);
   }
 
   @Benchmark

@@ -42,27 +42,27 @@ final class PropagatedSpan implements Span {
   }
 
   @Override
-  public Span setAttribute(String key, String value) {
+  public Span putAttribute(String key, String value) {
     return this;
   }
 
   @Override
-  public Span setAttribute(String key, long value) {
+  public Span putAttribute(String key, long value) {
     return this;
   }
 
   @Override
-  public Span setAttribute(String key, double value) {
+  public Span putAttribute(String key, double value) {
     return this;
   }
 
   @Override
-  public Span setAttribute(String key, boolean value) {
+  public Span putAttribute(String key, boolean value) {
     return this;
   }
 
   @Override
-  public <T> Span setAttribute(AttributeKey<T> key, T value) {
+  public <T> Span putAttribute(AttributeKey<T> key, T value) {
     return this;
   }
 

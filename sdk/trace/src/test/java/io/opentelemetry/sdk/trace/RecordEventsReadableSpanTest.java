@@ -210,7 +210,7 @@ class RecordEventsReadableSpanTest {
   @Test
   void toSpanData_WithInitialAttributes() {
     RecordEventsReadableSpan span = createTestSpanWithAttributes(attributes);
-    span.setAttribute("anotherKey", "anotherValue");
+    span.putAttribute("anotherKey", "anotherValue");
     span.end();
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getAttributes().size()).isEqualTo(attributes.size() + 1);
@@ -226,7 +226,7 @@ class RecordEventsReadableSpanTest {
     SpanData spanData = span.toSpanData();
 
     // Now modify the span after creating the snapshot.
-    span.setAttribute("anotherKey", "anotherValue");
+    span.putAttribute("anotherKey", "anotherValue");
     span.updateName("changedName");
     span.addEvent("newEvent");
     span.end();
@@ -329,34 +329,34 @@ class RecordEventsReadableSpanTest {
   void setAttribute() {
     RecordEventsReadableSpan span = createTestRootSpan();
     try {
-      span.setAttribute("StringKey", "StringVal");
-      span.setAttribute("NullStringKey", null);
-      span.setAttribute("EmptyStringKey", "");
-      span.setAttribute(stringKey("NullStringAttributeValue"), null);
-      span.setAttribute(stringKey("EmptyStringAttributeValue"), "");
-      span.setAttribute("LongKey", 1000L);
-      span.setAttribute(longKey("LongKey2"), 5);
-      span.setAttribute(longKey("LongKey3"), 6L);
-      span.setAttribute("DoubleKey", 10.0);
-      span.setAttribute("BooleanKey", false);
-      span.setAttribute(
+      span.putAttribute("StringKey", "StringVal");
+      span.putAttribute("NullStringKey", null);
+      span.putAttribute("EmptyStringKey", "");
+      span.putAttribute(stringKey("NullStringAttributeValue"), null);
+      span.putAttribute(stringKey("EmptyStringAttributeValue"), "");
+      span.putAttribute("LongKey", 1000L);
+      span.putAttribute(longKey("LongKey2"), 5);
+      span.putAttribute(longKey("LongKey3"), 6L);
+      span.putAttribute("DoubleKey", 10.0);
+      span.putAttribute("BooleanKey", false);
+      span.putAttribute(
           stringArrayKey("ArrayStringKey"), Arrays.asList("StringVal", null, "", "StringVal2"));
-      span.setAttribute(longArrayKey("ArrayLongKey"), Arrays.asList(1L, 2L, 3L, 4L, 5L));
-      span.setAttribute(doubleArrayKey("ArrayDoubleKey"), Arrays.asList(0.1, 2.3, 4.5, 6.7, 8.9));
-      span.setAttribute(
+      span.putAttribute(longArrayKey("ArrayLongKey"), Arrays.asList(1L, 2L, 3L, 4L, 5L));
+      span.putAttribute(doubleArrayKey("ArrayDoubleKey"), Arrays.asList(0.1, 2.3, 4.5, 6.7, 8.9));
+      span.putAttribute(
           booleanArrayKey("ArrayBooleanKey"), Arrays.asList(true, false, false, true));
       // These should be dropped
-      span.setAttribute(stringArrayKey("NullArrayStringKey"), null);
-      span.setAttribute(longArrayKey("NullArrayLongKey"), null);
-      span.setAttribute(doubleArrayKey("NullArrayDoubleKey"), null);
-      span.setAttribute(booleanArrayKey("NullArrayBooleanKey"), null);
+      span.putAttribute(stringArrayKey("NullArrayStringKey"), null);
+      span.putAttribute(longArrayKey("NullArrayLongKey"), null);
+      span.putAttribute(doubleArrayKey("NullArrayDoubleKey"), null);
+      span.putAttribute(booleanArrayKey("NullArrayBooleanKey"), null);
       // These should be maintained
-      span.setAttribute(longArrayKey("ArrayWithNullLongKey"), Arrays.asList(new Long[] {null}));
-      span.setAttribute(
+      span.putAttribute(longArrayKey("ArrayWithNullLongKey"), Arrays.asList(new Long[] {null}));
+      span.putAttribute(
           stringArrayKey("ArrayWithNullStringKey"), Arrays.asList(new String[] {null}));
-      span.setAttribute(
+      span.putAttribute(
           doubleArrayKey("ArrayWithNullDoubleKey"), Arrays.asList(new Double[] {null}));
-      span.setAttribute(
+      span.putAttribute(
           booleanArrayKey("ArrayWithNullBooleanKey"), Arrays.asList(new Boolean[] {null}));
     } finally {
       span.end();
@@ -390,76 +390,76 @@ class RecordEventsReadableSpanTest {
   @Test
   void setAttribute_emptyKeys() {
     RecordEventsReadableSpan span = createTestRootSpan();
-    span.setAttribute("", "");
-    span.setAttribute("", 1000L);
-    span.setAttribute("", 10.0);
-    span.setAttribute("", false);
-    span.setAttribute(stringArrayKey(""), Collections.emptyList());
-    span.setAttribute(booleanArrayKey(""), Collections.emptyList());
-    span.setAttribute(longArrayKey(""), Collections.emptyList());
-    span.setAttribute(doubleArrayKey(""), Collections.emptyList());
+    span.putAttribute("", "");
+    span.putAttribute("", 1000L);
+    span.putAttribute("", 10.0);
+    span.putAttribute("", false);
+    span.putAttribute(stringArrayKey(""), Collections.emptyList());
+    span.putAttribute(booleanArrayKey(""), Collections.emptyList());
+    span.putAttribute(longArrayKey(""), Collections.emptyList());
+    span.putAttribute(doubleArrayKey(""), Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(0);
   }
 
   @Test
   void setAttribute_nullKeys() {
     RecordEventsReadableSpan span = createTestRootSpan();
-    span.setAttribute(stringKey(null), "");
-    span.setAttribute(null, 1000L);
-    span.setAttribute(null, 10.0);
-    span.setAttribute(null, false);
-    span.setAttribute(null, Collections.emptyList());
-    span.setAttribute(null, Collections.emptyList());
-    span.setAttribute(null, Collections.emptyList());
-    span.setAttribute(null, Collections.emptyList());
+    span.putAttribute(stringKey(null), "");
+    span.putAttribute(null, 1000L);
+    span.putAttribute(null, 10.0);
+    span.putAttribute(null, false);
+    span.putAttribute(null, Collections.emptyList());
+    span.putAttribute(null, Collections.emptyList());
+    span.putAttribute(null, Collections.emptyList());
+    span.putAttribute(null, Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isZero();
   }
 
   @Test
   void setAttribute_emptyArrayAttributeValue() {
     RecordEventsReadableSpan span = createTestRootSpan();
-    span.setAttribute(stringArrayKey("stringArrayAttribute"), null);
+    span.putAttribute(stringArrayKey("stringArrayAttribute"), null);
     assertThat(span.toSpanData().getAttributes().size()).isZero();
-    span.setAttribute(stringArrayKey("stringArrayAttribute"), Collections.emptyList());
+    span.putAttribute(stringArrayKey("stringArrayAttribute"), Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(1);
-    span.setAttribute(booleanArrayKey("boolArrayAttribute"), null);
+    span.putAttribute(booleanArrayKey("boolArrayAttribute"), null);
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(1);
-    span.setAttribute(booleanArrayKey("boolArrayAttribute"), Collections.emptyList());
+    span.putAttribute(booleanArrayKey("boolArrayAttribute"), Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(2);
-    span.setAttribute(longArrayKey("longArrayAttribute"), null);
+    span.putAttribute(longArrayKey("longArrayAttribute"), null);
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(2);
-    span.setAttribute(longArrayKey("longArrayAttribute"), Collections.emptyList());
+    span.putAttribute(longArrayKey("longArrayAttribute"), Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(3);
-    span.setAttribute(doubleArrayKey("doubleArrayAttribute"), null);
+    span.putAttribute(doubleArrayKey("doubleArrayAttribute"), null);
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(3);
-    span.setAttribute(doubleArrayKey("doubleArrayAttribute"), Collections.emptyList());
+    span.putAttribute(doubleArrayKey("doubleArrayAttribute"), Collections.emptyList());
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(4);
   }
 
   @Test
   void setAttribute_nullStringValue() {
     RecordEventsReadableSpan span = createTestRootSpan();
-    span.setAttribute("nullString", null);
-    span.setAttribute("emptyString", "");
-    span.setAttribute(stringKey("nullStringAttributeValue"), null);
-    span.setAttribute(stringKey("emptyStringAttributeValue"), "");
+    span.putAttribute("nullString", null);
+    span.putAttribute("emptyString", "");
+    span.putAttribute(stringKey("nullStringAttributeValue"), null);
+    span.putAttribute(stringKey("emptyStringAttributeValue"), "");
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(2);
   }
 
   @Test
   void setAttribute_nullAttributeValue() {
     RecordEventsReadableSpan span = createTestRootSpan();
-    span.setAttribute("emptyString", "");
-    span.setAttribute(stringKey("nullString"), null);
-    span.setAttribute(stringKey("nullStringAttributeValue"), null);
-    span.setAttribute(stringKey("emptyStringAttributeValue"), "");
-    span.setAttribute("longAttribute", 0L);
-    span.setAttribute("boolAttribute", false);
-    span.setAttribute("doubleAttribute", 0.12345f);
-    span.setAttribute(stringArrayKey("stringArrayAttribute"), Arrays.asList("", null));
-    span.setAttribute(booleanArrayKey("boolArrayAttribute"), Arrays.asList(true, null));
-    span.setAttribute(longArrayKey("longArrayAttribute"), Arrays.asList(12345L, null));
-    span.setAttribute(doubleArrayKey("doubleArrayAttribute"), Arrays.asList(1.2345, null));
+    span.putAttribute("emptyString", "");
+    span.putAttribute(stringKey("nullString"), null);
+    span.putAttribute(stringKey("nullStringAttributeValue"), null);
+    span.putAttribute(stringKey("emptyStringAttributeValue"), "");
+    span.putAttribute("longAttribute", 0L);
+    span.putAttribute("boolAttribute", false);
+    span.putAttribute("doubleAttribute", 0.12345f);
+    span.putAttribute(stringArrayKey("stringArrayAttribute"), Arrays.asList("", null));
+    span.putAttribute(booleanArrayKey("boolArrayAttribute"), Arrays.asList(true, null));
+    span.putAttribute(longArrayKey("longArrayAttribute"), Arrays.asList(12345L, null));
+    span.putAttribute(doubleArrayKey("doubleArrayAttribute"), Arrays.asList(1.2345, null));
     assertThat(span.toSpanData().getAttributes().size()).isEqualTo(9);
   }
 
@@ -535,7 +535,7 @@ class RecordEventsReadableSpanTest {
     RecordEventsReadableSpan span = createTestSpan(spanLimits);
     try {
       for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
-        span.setAttribute(longKey("MyStringAttributeKey" + i), (long) i);
+        span.putAttribute(longKey("MyStringAttributeKey" + i), (long) i);
       }
       SpanData spanData = span.toSpanData();
       assertThat(spanData.getAttributes().size()).isEqualTo(maxNumberOfAttributes);
@@ -570,7 +570,7 @@ class RecordEventsReadableSpanTest {
     RecordEventsReadableSpan span = createTestSpan(spanLimits);
     try {
       for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
-        span.setAttribute(longKey("MyStringAttributeKey" + i), (long) i);
+        span.putAttribute(longKey("MyStringAttributeKey" + i), (long) i);
       }
       SpanData spanData = span.toSpanData();
       assertThat(spanData.getAttributes().size()).isEqualTo(maxNumberOfAttributes);
@@ -578,7 +578,7 @@ class RecordEventsReadableSpanTest {
 
       for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
         int val = i + maxNumberOfAttributes * 3 / 2;
-        span.setAttribute(longKey("MyStringAttributeKey" + i), (long) val);
+        span.putAttribute(longKey("MyStringAttributeKey" + i), (long) val);
       }
       spanData = span.toSpanData();
       assertThat(spanData.getAttributes().size()).isEqualTo(maxNumberOfAttributes);
@@ -727,7 +727,7 @@ class RecordEventsReadableSpanTest {
     RecordEventsReadableSpan span = createTestRootSpan();
 
     // Should be no exceptions
-    span.setAttribute(null, 0L);
+    span.putAttribute(null, 0L);
     span.setStatus(null);
     span.setStatus(null, null);
     span.updateName(null);
@@ -815,8 +815,8 @@ class RecordEventsReadableSpanTest {
       RecordEventsReadableSpan span,
       @Nullable StatusCode canonicalCode,
       @Nullable String descriptio) {
-    span.setAttribute("MySingleStringAttributeKey", "MySingleStringAttributeValue");
-    attributes.forEach(span::setAttribute);
+    span.putAttribute("MySingleStringAttributeKey", "MySingleStringAttributeValue");
+    attributes.forEach(span::putAttribute);
     testClock.advanceMillis(MILLIS_PER_SECOND);
     span.addEvent("event2", Attributes.empty());
     testClock.advanceMillis(MILLIS_PER_SECOND);
@@ -937,7 +937,7 @@ class RecordEventsReadableSpanTest {
         es.submit(
             () -> {
               for (int i = 0; i < 5096 * 5; ++i) {
-                span.setAttribute("hey" + i, "");
+                span.putAttribute("hey" + i, "");
               }
             });
     try {

@@ -48,7 +48,7 @@ class ActorPropagationTest {
     try (Actor actor = new Actor(tracer, phaser)) {
       phaser.register();
       Span parent = tracer.spanBuilder("actorTell").setSpanKind(SpanKind.PRODUCER).startSpan();
-      parent.setAttribute("component", "example-actor");
+      parent.putAttribute("component", "example-actor");
       try (Scope ignored = parent.makeCurrent()) {
         actor.tell("my message 1");
         actor.tell("my message 2");
@@ -81,7 +81,7 @@ class ActorPropagationTest {
       Future<String> future1;
       Future<String> future2;
       Span span = tracer.spanBuilder("actorAsk").setSpanKind(SpanKind.PRODUCER).startSpan();
-      span.setAttribute("component", "example-actor");
+      span.putAttribute("component", "example-actor");
 
       try (Scope ignored = span.makeCurrent()) {
         future1 = actor.ask("my message 1");

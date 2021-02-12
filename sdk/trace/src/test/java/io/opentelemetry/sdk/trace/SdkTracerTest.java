@@ -152,7 +152,7 @@ class SdkTracerTest {
     public void update() {
       Span span = tracer.spanBuilder("testSpan").startSpan();
       try (Scope ignored = span.makeCurrent()) {
-        span.setAttribute("testAttribute", "testValue");
+        span.putAttribute("testAttribute", "testValue");
       } finally {
         span.end();
       }

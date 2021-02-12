@@ -45,7 +45,7 @@ final class Server extends Thread {
                 });
     Span span =
         tracer.spanBuilder("receive").setSpanKind(SpanKind.SERVER).setParent(context).startSpan();
-    span.setAttribute("component", "example-server");
+    span.putAttribute("component", "example-server");
 
     try (Scope ignored = span.makeCurrent()) {
       // Simulate work.

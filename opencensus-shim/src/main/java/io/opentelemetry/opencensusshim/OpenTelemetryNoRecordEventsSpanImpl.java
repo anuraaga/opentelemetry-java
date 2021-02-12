@@ -109,27 +109,27 @@ class OpenTelemetryNoRecordEventsSpanImpl extends Span implements io.opentelemet
   }
 
   @Override
-  public io.opentelemetry.api.trace.Span setAttribute(String key, @Nonnull String value) {
+  public io.opentelemetry.api.trace.Span putAttribute(String key, @Nonnull String value) {
     return this;
   }
 
   @Override
-  public io.opentelemetry.api.trace.Span setAttribute(String key, long value) {
+  public io.opentelemetry.api.trace.Span putAttribute(String key, long value) {
     return this;
   }
 
   @Override
-  public io.opentelemetry.api.trace.Span setAttribute(String key, double value) {
+  public io.opentelemetry.api.trace.Span putAttribute(String key, double value) {
     return this;
   }
 
   @Override
-  public io.opentelemetry.api.trace.Span setAttribute(String key, boolean value) {
+  public io.opentelemetry.api.trace.Span putAttribute(String key, boolean value) {
     return this;
   }
 
   @Override
-  public <T> io.opentelemetry.api.trace.Span setAttribute(AttributeKey<T> key, @Nonnull T value) {
+  public <T> io.opentelemetry.api.trace.Span putAttribute(AttributeKey<T> key, @Nonnull T value) {
     return this;
   }
 

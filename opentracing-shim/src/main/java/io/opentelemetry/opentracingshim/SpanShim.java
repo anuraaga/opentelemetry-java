@@ -69,7 +69,7 @@ final class SpanShim extends BaseShimObject implements Span {
       StatusCode canonicalCode = Boolean.parseBoolean(value) ? StatusCode.ERROR : StatusCode.UNSET;
       span.setStatus(canonicalCode);
     } else {
-      span.setAttribute(key, value);
+      span.putAttribute(key, value);
     }
 
     return this;
@@ -81,7 +81,7 @@ final class SpanShim extends BaseShimObject implements Span {
       StatusCode canonicalCode = value ? StatusCode.ERROR : StatusCode.UNSET;
       span.setStatus(canonicalCode);
     } else {
-      span.setAttribute(key, value);
+      span.putAttribute(key, value);
     }
 
     return this;
@@ -97,9 +97,9 @@ final class SpanShim extends BaseShimObject implements Span {
         || value instanceof Long
         || value instanceof Short
         || value instanceof Byte) {
-      span.setAttribute(key, value.longValue());
+      span.putAttribute(key, value.longValue());
     } else if (value instanceof Float || value instanceof Double) {
-      span.setAttribute(key, value.doubleValue());
+      span.putAttribute(key, value.doubleValue());
     } else {
       throw new IllegalArgumentException("Number type not supported");
     }

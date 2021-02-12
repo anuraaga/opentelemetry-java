@@ -89,10 +89,10 @@ public class OpenTelemetryNoRecordEventsSpanImplTest {
     noRecordEventsSpan.addLink(
         Link.fromSpanContext(SpanContext.INVALID, Link.Type.CHILD_LINKED_SPAN));
     noRecordEventsSpan.setStatus(Status.OK);
-    noRecordEventsSpan.setAttribute("OTelAttributeKeyString", "OTelAttributeValue");
-    noRecordEventsSpan.setAttribute("OTelAttributeKeyLong", 123);
-    noRecordEventsSpan.setAttribute("OTelAttributeKeyDouble", 123.45);
-    noRecordEventsSpan.setAttribute("OTelAttributeKeyBoolean", true);
+    noRecordEventsSpan.putAttribute("OTelAttributeKeyString", "OTelAttributeValue");
+    noRecordEventsSpan.putAttribute("OTelAttributeKeyLong", 123);
+    noRecordEventsSpan.putAttribute("OTelAttributeKeyDouble", 123.45);
+    noRecordEventsSpan.putAttribute("OTelAttributeKeyBoolean", true);
     noRecordEventsSpan.addEvent("OTel event 1");
     noRecordEventsSpan.addEvent("OTel event 2", 29922310, TimeUnit.HOURS);
     noRecordEventsSpan.addEvent(

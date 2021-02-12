@@ -28,11 +28,11 @@ class SpanBuilderTest {
     spanBuilder.setNoParent();
     spanBuilder.addLink(Span.getInvalid().getSpanContext());
     spanBuilder.addLink(Span.getInvalid().getSpanContext(), Attributes.empty());
-    spanBuilder.setAttribute("key", "value");
-    spanBuilder.setAttribute("key", 12345L);
-    spanBuilder.setAttribute("key", .12345);
-    spanBuilder.setAttribute("key", true);
-    spanBuilder.setAttribute(stringKey("key"), "value");
+    spanBuilder.putAttribute("key", "value");
+    spanBuilder.putAttribute("key", 12345L);
+    spanBuilder.putAttribute("key", .12345);
+    spanBuilder.putAttribute("key", true);
+    spanBuilder.putAttribute(stringKey("key"), "value");
     spanBuilder.setStartTimestamp(12345L, TimeUnit.NANOSECONDS);
     spanBuilder.setStartTimestamp(Instant.EPOCH);
     spanBuilder.setStartTimestamp(null);
