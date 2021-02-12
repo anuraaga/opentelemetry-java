@@ -14,28 +14,28 @@ class SpanLimitsTest {
 
   @Test
   void defaultSpanLimits() {
-    assertThat(SpanLimits.getDefault().getMaxNumberOfAttributes()).isEqualTo(128);
-    assertThat(SpanLimits.getDefault().getMaxNumberOfEvents()).isEqualTo(128);
-    assertThat(SpanLimits.getDefault().getMaxNumberOfLinks()).isEqualTo(128);
-    assertThat(SpanLimits.getDefault().getMaxNumberOfAttributesPerEvent()).isEqualTo(128);
-    assertThat(SpanLimits.getDefault().getMaxNumberOfAttributesPerLink()).isEqualTo(128);
+    assertThat(SpanLimits.getDefault().getSpanAttributeCountLimit()).isEqualTo(128);
+    assertThat(SpanLimits.getDefault().getEventCountLimit()).isEqualTo(128);
+    assertThat(SpanLimits.getDefault().getLinkCountLimit()).isEqualTo(128);
+    assertThat(SpanLimits.getDefault().getAttributePerEventCountLimit()).isEqualTo(128);
+    assertThat(SpanLimits.getDefault().getAttributePerLinkCountLimit()).isEqualTo(128);
   }
 
   @Test
   void updateSpanLimits_All() {
     SpanLimits spanLimits =
         SpanLimits.builder()
-            .setMaxNumberOfAttributes(8)
-            .setMaxNumberOfEvents(10)
-            .setMaxNumberOfLinks(11)
-            .setMaxNumberOfAttributesPerEvent(1)
-            .setMaxNumberOfAttributesPerLink(2)
+            .setAttributeCountLimit(8)
+            .setEventCountLimit(10)
+            .setLinkCountLimit(11)
+            .setAttributePerEventCountLimit(1)
+            .setAttributePerLinkCountLimit(2)
             .build();
-    assertThat(spanLimits.getMaxNumberOfAttributes()).isEqualTo(8);
-    assertThat(spanLimits.getMaxNumberOfEvents()).isEqualTo(10);
-    assertThat(spanLimits.getMaxNumberOfLinks()).isEqualTo(11);
-    assertThat(spanLimits.getMaxNumberOfAttributesPerEvent()).isEqualTo(1);
-    assertThat(spanLimits.getMaxNumberOfAttributesPerLink()).isEqualTo(2);
+    assertThat(spanLimits.getSpanAttributeCountLimit()).isEqualTo(8);
+    assertThat(spanLimits.getEventCountLimit()).isEqualTo(10);
+    assertThat(spanLimits.getLinkCountLimit()).isEqualTo(11);
+    assertThat(spanLimits.getAttributePerEventCountLimit()).isEqualTo(1);
+    assertThat(spanLimits.getAttributePerLinkCountLimit()).isEqualTo(2);
 
     // Preserves values
     SpanLimits spanLimitsDupe = spanLimits.toBuilder().build();

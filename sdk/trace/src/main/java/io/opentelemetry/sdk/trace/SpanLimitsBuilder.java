@@ -33,7 +33,7 @@ public final class SpanLimitsBuilder {
    *     must be positive otherwise {@link #build()} will throw an exception.
    * @return this.
    */
-  public SpanLimitsBuilder setMaxNumberOfAttributes(int maxNumberOfAttributes) {
+  public SpanLimitsBuilder setAttributeCountLimit(int maxNumberOfAttributes) {
     Utils.checkArgument(maxNumberOfAttributes > 0, "maxNumberOfAttributes must be greater than 0");
     this.maxNumAttributes = maxNumberOfAttributes;
     return this;
@@ -46,7 +46,7 @@ public final class SpanLimitsBuilder {
    *     positive otherwise {@link #build()} will throw an exception.
    * @return this.
    */
-  public SpanLimitsBuilder setMaxNumberOfEvents(int maxNumberOfEvents) {
+  public SpanLimitsBuilder setEventCountLimit(int maxNumberOfEvents) {
     Utils.checkArgument(maxNumberOfEvents > 0, "maxNumberOfEvents must be greater than 0");
     this.maxNumEvents = maxNumberOfEvents;
     return this;
@@ -59,7 +59,7 @@ public final class SpanLimitsBuilder {
    *     positive otherwise {@link #build()} will throw an exception.
    * @return this.
    */
-  public SpanLimitsBuilder setMaxNumberOfLinks(int maxNumberOfLinks) {
+  public SpanLimitsBuilder setLinkCountLimit(int maxNumberOfLinks) {
     Utils.checkArgument(maxNumberOfLinks > 0, "maxNumberOfLinks must be greater than 0");
     this.maxNumLinks = maxNumberOfLinks;
     return this;
@@ -72,7 +72,7 @@ public final class SpanLimitsBuilder {
    *     must be positive otherwise {@link #build()} will throw an exception.
    * @return this.
    */
-  public SpanLimitsBuilder setMaxNumberOfAttributesPerEvent(int maxNumberOfAttributesPerEvent) {
+  public SpanLimitsBuilder setAttributePerEventCountLimit(int maxNumberOfAttributesPerEvent) {
     Utils.checkArgument(
         maxNumberOfAttributesPerEvent > 0, "maxNumberOfAttributesPerEvent must be greater than 0");
     this.maxNumAttributesPerEvent = maxNumberOfAttributesPerEvent;
@@ -86,7 +86,7 @@ public final class SpanLimitsBuilder {
    *     must be positive otherwise {@link #build()} will throw an exception.
    * @return this.
    */
-  public SpanLimitsBuilder setMaxNumberOfAttributesPerLink(int maxNumberOfAttributesPerLink) {
+  public SpanLimitsBuilder setAttributePerLinkCountLimit(int maxNumberOfAttributesPerLink) {
     Utils.checkArgument(
         maxNumberOfAttributesPerLink > 0, "maxNumberOfAttributesPerLink must be greater than 0");
     this.maxNumAttributesPerLink = maxNumberOfAttributesPerLink;

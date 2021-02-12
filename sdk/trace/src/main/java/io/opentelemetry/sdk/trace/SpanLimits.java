@@ -64,35 +64,35 @@ public abstract class SpanLimits {
    *
    * @return the global default max number of attributes per {@link Span}.
    */
-  public abstract int getMaxNumberOfAttributes();
+  public abstract int getSpanAttributeCountLimit();
 
   /**
    * Returns the global default max number of events per {@link Span}.
    *
    * @return the global default max number of events per {@code Span}.
    */
-  public abstract int getMaxNumberOfEvents();
+  public abstract int getEventCountLimit();
 
   /**
    * Returns the global default max number of links per {@link Span}.
    *
    * @return the global default max number of links per {@code Span}.
    */
-  public abstract int getMaxNumberOfLinks();
+  public abstract int getLinkCountLimit();
 
   /**
    * Returns the global default max number of attributes per event.
    *
    * @return the global default max number of attributes per event.
    */
-  public abstract int getMaxNumberOfAttributesPerEvent();
+  public abstract int getAttributePerEventCountLimit();
 
   /**
    * Returns the global default max number of attributes per link.
    *
    * @return the global default max number of attributes per link.
    */
-  public abstract int getMaxNumberOfAttributesPerLink();
+  public abstract int getAttributePerLinkCountLimit();
 
   /**
    * Returns the global default max length of string attribute value in characters.
@@ -115,11 +115,11 @@ public abstract class SpanLimits {
    */
   public SpanLimitsBuilder toBuilder() {
     return new SpanLimitsBuilder()
-        .setMaxNumberOfAttributes(getMaxNumberOfAttributes())
-        .setMaxNumberOfEvents(getMaxNumberOfEvents())
-        .setMaxNumberOfLinks(getMaxNumberOfLinks())
-        .setMaxNumberOfAttributesPerEvent(getMaxNumberOfAttributesPerEvent())
-        .setMaxNumberOfAttributesPerLink(getMaxNumberOfAttributesPerLink())
+        .setAttributeCountLimit(getSpanAttributeCountLimit())
+        .setEventCountLimit(getEventCountLimit())
+        .setLinkCountLimit(getLinkCountLimit())
+        .setAttributePerEventCountLimit(getAttributePerEventCountLimit())
+        .setAttributePerLinkCountLimit(getAttributePerLinkCountLimit())
         .setMaxLengthOfAttributeValues(getMaxLengthOfAttributeValues());
   }
 }

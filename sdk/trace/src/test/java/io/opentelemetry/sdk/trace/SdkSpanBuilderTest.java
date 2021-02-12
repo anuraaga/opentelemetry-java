@@ -106,7 +106,7 @@ class SdkSpanBuilderTest {
   @Test
   void truncateLink() {
     final int maxNumberOfLinks = 8;
-    SpanLimits spanLimits = SpanLimits.builder().setMaxNumberOfLinks(maxNumberOfLinks).build();
+    SpanLimits spanLimits = SpanLimits.builder().setLinkCountLimit(maxNumberOfLinks).build();
     TracerProvider tracerProvider = SdkTracerProvider.builder().setSpanLimits(spanLimits).build();
     // Verify methods do not crash.
     SpanBuilder spanBuilder = tracerProvider.get("test").spanBuilder(SPAN_NAME);
@@ -129,7 +129,7 @@ class SdkSpanBuilderTest {
 
   @Test
   void truncateLinkAttributes() {
-    SpanLimits spanLimits = SpanLimits.builder().setMaxNumberOfAttributesPerLink(1).build();
+    SpanLimits spanLimits = SpanLimits.builder().setAttributePerLinkCountLimit(1).build();
     TracerProvider tracerProvider = SdkTracerProvider.builder().setSpanLimits(spanLimits).build();
     // Verify methods do not crash.
     SpanBuilder spanBuilder = tracerProvider.get("test").spanBuilder(SPAN_NAME);
@@ -354,7 +354,7 @@ class SdkSpanBuilderTest {
   @Test
   void droppingAttributes() {
     final int maxNumberOfAttrs = 8;
-    SpanLimits spanLimits = SpanLimits.builder().setMaxNumberOfAttributes(maxNumberOfAttrs).build();
+    SpanLimits spanLimits = SpanLimits.builder().setAttributeCountLimit(maxNumberOfAttrs).build();
     TracerProvider tracerProvider = SdkTracerProvider.builder().setSpanLimits(spanLimits).build();
     // Verify methods do not crash.
     SpanBuilder spanBuilder = tracerProvider.get("test").spanBuilder(SPAN_NAME);

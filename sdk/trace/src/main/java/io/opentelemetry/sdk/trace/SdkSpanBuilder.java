@@ -94,7 +94,7 @@ final class SdkSpanBuilder implements SpanBuilder {
         LinkData.create(
             spanContext,
             RecordEventsReadableSpan.copyAndLimitAttributes(
-                attributes, spanLimits.getMaxNumberOfAttributesPerLink()),
+                attributes, spanLimits.getAttributePerLinkCountLimit()),
             totalAttributeCount));
     return this;
   }
@@ -103,11 +103,11 @@ final class SdkSpanBuilder implements SpanBuilder {
     Objects.requireNonNull(link, "link");
     totalNumberOfLinksAdded++;
     if (links == null) {
-      links = new ArrayList<>(spanLimits.getMaxNumberOfLinks());
+      links = new ArrayList<>(spanLimits.getLinkCountLimit());
     }
 
     // don't bother doing anything with any links beyond the max.
-    if (links.size() == spanLimits.getMaxNumberOfLinks()) {
+    if (links.size() == spanLimits.getLinkCountLimit()) {
       return;
     }
 
@@ -141,7 +141,7 @@ final class SdkSpanBuilder implements SpanBuilder {
       return this;
     }
     if (attributes == null) {
-      attributes = new AttributesMap(spanLimits.getMaxNumberOfAttributes());
+      attributes = new AttributesMap(spanLimits.getSpanAttributeCountLimit());
     }
 
     if (spanLimits.shouldTruncateStringAttributeValues()) {
@@ -204,7 +204,7 @@ final class SdkSpanBuilder implements SpanBuilder {
     Attributes samplingAttributes = samplingResult.getAttributes();
     if (!samplingAttributes.isEmpty()) {
       if (attributes == null) {
-        attributes = new AttributesMap(spanLimits.getMaxNumberOfAttributes());
+        attributes = new AttributesMap(spanLimits.getSpanAttributeCountLimit());
       }
       samplingAttributes.forEach((key, value) -> attributes.put((AttributeKey) key, value));
     }

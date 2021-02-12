@@ -84,17 +84,17 @@ final class TracerProviderConfiguration {
 
     Integer maxAttrs = config.getInt("otel.span.attribute.count.limit");
     if (maxAttrs != null) {
-      builder.setMaxNumberOfAttributes(maxAttrs);
+      builder.setAttributeCountLimit(maxAttrs);
     }
 
     Integer maxEvents = config.getInt("otel.span.event.count.limit");
     if (maxEvents != null) {
-      builder.setMaxNumberOfEvents(maxEvents);
+      builder.setEventCountLimit(maxEvents);
     }
 
     Integer maxLinks = config.getInt("otel.span.link.count.limit");
     if (maxLinks != null) {
-      builder.setMaxNumberOfLinks(maxLinks);
+      builder.setLinkCountLimit(maxLinks);
     }
 
     return builder.build();
