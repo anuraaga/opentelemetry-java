@@ -46,8 +46,7 @@ class StrictContextStorageTest {
   private static final String SPAN_ID = "b2e170db4df2d593";
 
   private static final Span SPAN =
-      Span.wrap(
-          SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+      Span.wrap(SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
 
   @RegisterExtension
   LogCapturer logs = LogCapturer.create().captureForType(StrictContextStorage.class);

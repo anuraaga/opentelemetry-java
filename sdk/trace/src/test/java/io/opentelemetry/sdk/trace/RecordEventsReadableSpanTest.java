@@ -69,8 +69,8 @@ class RecordEventsReadableSpanTest {
   private final String spanId = idsGenerator.generateSpanId();
   private final String parentSpanId = idsGenerator.generateSpanId();
   private final SpanContext spanContext =
-      SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.getDefault());
-  private final Resource resource = Resource.getEmpty();
+      SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.empty());
+  private final Resource resource = Resource.empty();
   private final InstrumentationLibraryInfo instrumentationLibraryInfo =
       InstrumentationLibraryInfo.create("theName", null);
   private final Map<AttributeKey, Object> attributes = new HashMap<>();
@@ -796,7 +796,7 @@ class RecordEventsReadableSpanTest {
             kind,
             parentSpanId != null
                 ? SpanContext.create(
-                    traceId, parentSpanId, TraceFlags.getDefault(), TraceState.getDefault())
+                    traceId, parentSpanId, TraceFlags.getDefault(), TraceState.empty())
                 : SpanContext.getInvalid(),
             Context.root(),
             config,
@@ -839,7 +839,7 @@ class RecordEventsReadableSpanTest {
     assertThat(spanData.getTraceId()).isEqualTo(traceId);
     assertThat(spanData.getSpanId()).isEqualTo(spanId);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
-    assertThat(spanData.getSpanContext().getTraceState()).isEqualTo(TraceState.getDefault());
+    assertThat(spanData.getSpanContext().getTraceState()).isEqualTo(TraceState.empty());
     assertThat(spanData.getResource()).isEqualTo(resource);
     assertThat(spanData.getInstrumentationLibraryInfo()).isEqualTo(instrumentationLibraryInfo);
     assertThat(spanData.getName()).isEqualTo(spanName);
@@ -873,7 +873,7 @@ class RecordEventsReadableSpanTest {
     Attributes event1Attributes = TestUtils.generateRandomAttributes();
     Attributes event2Attributes = TestUtils.generateRandomAttributes();
     SpanContext context =
-        SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.getDefault());
+        SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.empty());
     LinkData link1 = LinkData.create(context, TestUtils.generateRandomAttributes());
 
     RecordEventsReadableSpan readableSpan =
@@ -884,7 +884,7 @@ class RecordEventsReadableSpanTest {
             kind,
             parentSpanId != null
                 ? SpanContext.create(
-                    traceId, parentSpanId, TraceFlags.getDefault(), TraceState.getDefault())
+                    traceId, parentSpanId, TraceFlags.getDefault(), TraceState.empty())
                 : SpanContext.getInvalid(),
             Context.root(),
             spanLimits,

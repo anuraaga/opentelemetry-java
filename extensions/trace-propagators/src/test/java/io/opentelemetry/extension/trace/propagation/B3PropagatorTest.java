@@ -82,7 +82,7 @@ class B3PropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     b3Propagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -96,7 +96,7 @@ class B3PropagatorTest {
     final Map<String, String> carrier = new LinkedHashMap<>();
     b3Propagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         null,
         (Setter<Map<String, String>>) (ignored, key, value) -> carrier.put(key, value));
@@ -110,7 +110,7 @@ class B3PropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     b3Propagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -137,7 +137,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -150,7 +150,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -163,7 +163,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -176,7 +176,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -189,7 +189,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -202,7 +202,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -306,7 +306,7 @@ class B3PropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     b3PropagatorSingleHeader.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -320,7 +320,7 @@ class B3PropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     b3PropagatorSingleHeader.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -345,7 +345,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -357,7 +357,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -368,7 +368,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -379,7 +379,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -390,7 +390,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -402,7 +402,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -415,7 +415,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -426,7 +426,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -438,7 +438,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -450,7 +450,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                SHORT_TRACE_ID_FULL, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -544,7 +544,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -559,7 +559,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(b3Propagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                EXTRA_TRACE_ID, EXTRA_SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                EXTRA_TRACE_ID, EXTRA_SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -609,7 +609,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(context))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
     assertTrue(context.get(DEBUG_CONTEXT_KEY));
   }
 
@@ -624,7 +624,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(context))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
     assertTrue(context.get(DEBUG_CONTEXT_KEY));
   }
 
@@ -640,7 +640,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(context))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
     assertTrue(context.get(DEBUG_CONTEXT_KEY));
   }
 
@@ -656,7 +656,7 @@ class B3PropagatorTest {
     assertThat(getSpanContext(context))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
     assertTrue(context.get(DEBUG_CONTEXT_KEY));
   }
 
@@ -666,7 +666,7 @@ class B3PropagatorTest {
     Context context = Context.current().with(DEBUG_CONTEXT_KEY, true);
     b3Propagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             context),
         carrier,
         setter);
@@ -682,7 +682,7 @@ class B3PropagatorTest {
     Context context = Context.current().with(DEBUG_CONTEXT_KEY, true);
     b3PropagatorSingleHeader.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             context),
         carrier,
         setter);

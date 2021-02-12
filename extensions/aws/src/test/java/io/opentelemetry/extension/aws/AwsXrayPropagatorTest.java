@@ -46,7 +46,7 @@ class AwsXrayPropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     xrayPropagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -62,7 +62,7 @@ class AwsXrayPropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     xrayPropagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -113,7 +113,7 @@ class AwsXrayPropagatorTest {
     assertThat(getSpanContext(xrayPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -126,7 +126,7 @@ class AwsXrayPropagatorTest {
     assertThat(getSpanContext(xrayPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -139,7 +139,7 @@ class AwsXrayPropagatorTest {
     assertThat(getSpanContext(xrayPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -153,7 +153,7 @@ class AwsXrayPropagatorTest {
     assertThat(getSpanContext(xrayPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test

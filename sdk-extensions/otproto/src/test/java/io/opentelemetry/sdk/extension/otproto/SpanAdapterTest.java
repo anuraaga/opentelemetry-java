@@ -46,7 +46,7 @@ class SpanAdapterTest {
   private static final byte[] SPAN_ID_BYTES = new byte[] {0, 0, 0, 0, 4, 3, 2, 1};
   private static final String SPAN_ID = SpanId.fromBytes(SPAN_ID_BYTES);
   private static final SpanContext SPAN_CONTEXT =
-      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault());
+      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty());
 
   @Test
   void toProtoSpan() {

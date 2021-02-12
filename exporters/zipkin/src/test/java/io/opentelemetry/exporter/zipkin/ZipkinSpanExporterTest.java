@@ -366,10 +366,10 @@ class ZipkinSpanExporterTest {
   private static TestSpanData.Builder buildStandardSpan() {
     return TestSpanData.builder()
         .setSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()))
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()))
         .setParentSpanContext(
             SpanContext.create(
-                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()))
+                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.empty()))
         .setResource(
             Resource.create(
                 Attributes.builder().put(ResourceAttributes.SERVICE_NAME, "tweetiebird").build()))

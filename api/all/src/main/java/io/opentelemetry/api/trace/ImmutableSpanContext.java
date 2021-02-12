@@ -17,7 +17,7 @@ abstract class ImmutableSpanContext implements SpanContext {
           TraceId.getInvalid(),
           SpanId.getInvalid(),
           TraceFlags.getDefault(),
-          TraceState.getDefault(),
+          TraceState.empty(),
           /* remote= */ false,
           /* valid= */ false);
 

@@ -39,8 +39,8 @@ class TraceStateTest {
 
   @Test
   void sizeAndEmpty() {
-    assertThat(TraceState.getDefault().size()).isZero();
-    assertThat(TraceState.getDefault().isEmpty()).isTrue();
+    assertThat(TraceState.empty().size()).isZero();
+    assertThat(TraceState.empty().isEmpty()).isTrue();
 
     assertThat(firstTraceState.size()).isOne();
     assertThat(firstTraceState.isEmpty()).isFalse();
@@ -79,20 +79,18 @@ class TraceStateTest {
 
   @Test
   void disallowsNullKey() {
-    assertThat(TraceState.builder().set(null, FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+    assertThat(TraceState.builder().set(null, FIRST_VALUE).build()).isEqualTo(TraceState.empty());
   }
 
   @Test
   void disallowsEmptyKey() {
-    assertThat(TraceState.builder().set("", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+    assertThat(TraceState.builder().set("", FIRST_VALUE).build()).isEqualTo(TraceState.empty());
   }
 
   @Test
   void invalidFirstKeyCharacter() {
     assertThat(TraceState.builder().set("$_key", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -111,7 +109,7 @@ class TraceStateTest {
   @Test
   void invalidKeyCharacters() {
     assertThat(TraceState.builder().set("kEy_1", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -123,13 +121,13 @@ class TraceStateTest {
   @Test
   void testVendorIdLongerThan13Characters() {
     assertThat(TraceState.builder().set("1@nrabcdefghijkl", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
   void testVendorIdLongerThan13Characters_longTenantId() {
     assertThat(TraceState.builder().set("12345678901234567890@nrabcdefghijkl", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -138,19 +136,19 @@ class TraceStateTest {
     Arrays.fill(chars, 'a');
     String tenantId = new String(chars);
     assertThat(TraceState.builder().set(tenantId + "@nr", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
   void testNonVendorFormatFirstKeyCharacter() {
     assertThat(TraceState.builder().set("1acdfrgs", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
   void testMultipleAtSignNotAllowed() {
     assertThat(TraceState.builder().set("1@n@r@", FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -159,7 +157,7 @@ class TraceStateTest {
     Arrays.fill(chars, 'a');
     String longKey = new String(chars);
     assertThat(TraceState.builder().set(longKey, FIRST_VALUE).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -186,7 +184,7 @@ class TraceStateTest {
     Arrays.fill(chars, 'a');
     String longValue = new String(chars);
     assertThat(TraceState.builder().set(FIRST_KEY, longValue).build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -206,15 +204,12 @@ class TraceStateTest {
   @Test
   @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
   void invalidValues() {
-    assertThat(TraceState.builder().set(FIRST_KEY, null).build())
-        .isEqualTo(TraceState.getDefault());
-    assertThat(TraceState.builder().set("foo", "bar,").build()).isEqualTo(TraceState.getDefault());
-    assertThat(TraceState.builder().set("foo", "bar ").build()).isEqualTo(TraceState.getDefault());
-    assertThat(TraceState.builder().set("foo", "bar=").build()).isEqualTo(TraceState.getDefault());
-    assertThat(TraceState.builder().set("foo", "bar\u0019").build())
-        .isEqualTo(TraceState.getDefault());
-    assertThat(TraceState.builder().set("foo", "bar\u007F").build())
-        .isEqualTo(TraceState.getDefault());
+    assertThat(TraceState.builder().set(FIRST_KEY, null).build()).isEqualTo(TraceState.empty());
+    assertThat(TraceState.builder().set("foo", "bar,").build()).isEqualTo(TraceState.empty());
+    assertThat(TraceState.builder().set("foo", "bar ").build()).isEqualTo(TraceState.empty());
+    assertThat(TraceState.builder().set("foo", "bar=").build()).isEqualTo(TraceState.empty());
+    assertThat(TraceState.builder().set("foo", "bar\u0019").build()).isEqualTo(TraceState.empty());
+    assertThat(TraceState.builder().set("foo", "bar\u007F").build()).isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -272,7 +267,7 @@ class TraceStateTest {
                 .set(FIRST_KEY, SECOND_VALUE) // update the existing entry
                 .remove(FIRST_KEY) // add a new entry
                 .build())
-        .isEqualTo(TraceState.getDefault());
+        .isEqualTo(TraceState.empty());
   }
 
   @Test
@@ -285,9 +280,9 @@ class TraceStateTest {
   void traceState_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
-        TraceState.getDefault(),
-        TraceState.getDefault(),
-        TraceState.getDefault().toBuilder().build(),
+        TraceState.empty(),
+        TraceState.empty(),
+        TraceState.empty().toBuilder().build(),
         TraceState.builder().build());
     tester.addEqualityGroup(
         firstTraceState, TraceState.builder().set(FIRST_KEY, FIRST_VALUE).build());
@@ -298,6 +293,6 @@ class TraceStateTest {
 
   @Test
   void traceState_ToString() {
-    assertThat(TraceState.getDefault().toString()).isEqualTo("ArrayBasedTraceState{entries=[]}");
+    assertThat(TraceState.empty().toString()).isEqualTo("ArrayBasedTraceState{entries=[]}");
   }
 }

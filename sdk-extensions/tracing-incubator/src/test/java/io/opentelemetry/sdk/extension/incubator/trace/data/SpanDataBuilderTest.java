@@ -28,8 +28,7 @@ class SpanDataBuilderTest {
       TestSpanData.builder()
           .setHasEnded(true)
           .setSpanContext(
-              SpanContext.create(
-                  TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()))
+              SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()))
           .setName("GET /api/endpoint")
           .setStartEpochNanos(0)
           .setEndEpochNanos(100)

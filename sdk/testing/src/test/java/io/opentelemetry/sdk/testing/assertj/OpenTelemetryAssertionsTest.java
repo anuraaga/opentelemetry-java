@@ -56,8 +56,7 @@ class OpenTelemetryAssertionsTest {
   private static final List<LinkData> LINKS =
       Arrays.asList(
           LinkData.create(
-              SpanContext.create(
-                  TRACE_ID, SPAN_ID1, TraceFlags.getDefault(), TraceState.getDefault())),
+              SpanContext.create(TRACE_ID, SPAN_ID1, TraceFlags.getDefault(), TraceState.empty())),
           LinkData.create(
               SpanContext.create(TRACE_ID, SPAN_ID2, TraceFlags.getSampled(), TRACE_STATE),
               Attributes.empty(),
@@ -70,8 +69,7 @@ class OpenTelemetryAssertionsTest {
     TestSpanData.Builder spanDataBuilder =
         TestSpanData.builder()
             .setParentSpanContext(
-                SpanContext.create(
-                    TRACE_ID, SPAN_ID2, TraceFlags.getDefault(), TraceState.getDefault()))
+                SpanContext.create(TRACE_ID, SPAN_ID2, TraceFlags.getDefault(), TraceState.empty()))
             .setResource(RESOURCE)
             .setInstrumentationLibraryInfo(INSTRUMENTATION_LIBRARY_INFO)
             .setName("span")
@@ -155,16 +153,15 @@ class OpenTelemetryAssertionsTest {
         .isInstanceOf(AssertionError.class);
     assertThatThrownBy(() -> assertThat(SPAN1).hasSpanId("foo")).isInstanceOf(AssertionError.class);
     assertThatThrownBy(() -> assertThat(SPAN1).isNotSampled()).isInstanceOf(AssertionError.class);
-    assertThatThrownBy(() -> assertThat(SPAN1).hasTraceState(TraceState.getDefault()))
+    assertThatThrownBy(() -> assertThat(SPAN1).hasTraceState(TraceState.empty()))
         .isInstanceOf(AssertionError.class);
     assertThatThrownBy(() -> assertThat(SPAN1).hasParentSpanId("foo"))
         .isInstanceOf(AssertionError.class);
-    assertThatThrownBy(() -> assertThat(SPAN1).hasResource(Resource.getEmpty()))
+    assertThatThrownBy(() -> assertThat(SPAN1).hasResource(Resource.empty()))
         .isInstanceOf(AssertionError.class);
     assertThatThrownBy(
             () ->
-                assertThat(SPAN1)
-                    .hasInstrumentationLibraryInfo(InstrumentationLibraryInfo.getEmpty()))
+                assertThat(SPAN1).hasInstrumentationLibraryInfo(InstrumentationLibraryInfo.empty()))
         .isInstanceOf(AssertionError.class);
     assertThatThrownBy(() -> assertThat(SPAN1).hasName("foo")).isInstanceOf(AssertionError.class);
     assertThatThrownBy(() -> assertThat(SPAN1).hasKind(SpanKind.SERVER))

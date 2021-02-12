@@ -254,7 +254,7 @@ class OtlpGrpcSpanExporterTest {
     return TestSpanData.builder()
         .setHasEnded(true)
         .setSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()))
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()))
         .setName("GET /api/endpoint")
         .setStartEpochNanos(startNs)
         .setEndEpochNanos(endNs)

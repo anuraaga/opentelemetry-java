@@ -58,9 +58,9 @@ class TraceMarshalerTest {
           "0123456789abcdef0123456789abcdef",
           "0123456789abcdef",
           TraceFlags.getSampled(),
-          TraceState.getDefault());
+          TraceState.empty());
   private static final SpanContext PARENT_SPAN_CONTEXT =
-      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault());
+      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty());
 
   @Test
   void marshalAndSizeRequest() throws IOException {
@@ -121,7 +121,7 @@ class TraceMarshalerTest {
             testSpanDataWithInstrumentationLibrary(InstrumentationLibraryInfo.create("name", "")),
             testSpanDataWithInstrumentationLibrary(
                 InstrumentationLibraryInfo.create("name", "version")),
-            testSpanDataWithInstrumentationLibrary(InstrumentationLibraryInfo.getEmpty()),
+            testSpanDataWithInstrumentationLibrary(InstrumentationLibraryInfo.empty()),
             testSpanDataWithInstrumentationLibrary(InstrumentationLibraryInfo.create("", ""))));
   }
 

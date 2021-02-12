@@ -26,14 +26,14 @@ class AlwaysOffSamplerTest {
   private final String traceId = idsGenerator.generateTraceId();
   private final String parentSpanId = idsGenerator.generateSpanId();
   private final SpanContext sampledSpanContext =
-      SpanContext.create(traceId, parentSpanId, TraceFlags.getSampled(), TraceState.getDefault());
+      SpanContext.create(traceId, parentSpanId, TraceFlags.getSampled(), TraceState.empty());
   private final Context sampledParentContext = Context.root().with(Span.wrap(sampledSpanContext));
   private final Context notSampledParentContext =
       Context.root()
           .with(
               Span.wrap(
                   SpanContext.create(
-                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.getDefault())));
+                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.empty())));
 
   @Test
   void parentNotSampled() {

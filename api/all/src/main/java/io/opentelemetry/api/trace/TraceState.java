@@ -37,14 +37,12 @@ import javax.annotation.concurrent.Immutable;
 public interface TraceState {
 
   /**
-   * Returns the default {@code TraceState} with no entries.
+   * Returns an empty {@code TraceState} with no entries.
    *
    * <p>This method is equivalent to calling {@code #builder().build()}, but avoids new allocations.
-   *
-   * @return the default {@code TraceState} with no entries.
    */
-  static TraceState getDefault() {
-    return ArrayBasedTraceStateBuilder.getEmpty();
+  static TraceState empty() {
+    return ArrayBasedTraceStateBuilder.empty();
   }
 
   /** Returns an empty {@code TraceStateBuilder}. */

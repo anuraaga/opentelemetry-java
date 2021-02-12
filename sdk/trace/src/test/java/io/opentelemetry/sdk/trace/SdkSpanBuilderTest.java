@@ -60,7 +60,7 @@ class SdkSpanBuilderTest {
           "12345678876543211234567887654321",
           "8765432112345678",
           TraceFlags.getSampled(),
-          TraceState.getDefault());
+          TraceState.empty());
 
   @Mock private SpanProcessor mockedSpanProcessor;
 
@@ -164,7 +164,7 @@ class SdkSpanBuilderTest {
               "00000000000004d20000000000001a85",
               "0000000000002694",
               TraceFlags.getSampled(),
-              TraceState.getDefault()));
+              TraceState.empty()));
       assertThat(span.toSpanData().getLinks())
           .containsExactly(LinkData.create(sampledSpanContext, Attributes.empty()));
     } finally {
@@ -544,8 +544,7 @@ class SdkSpanBuilderTest {
     try {
       assertThat(span.getSpanContext().isSampled()).isTrue();
       assertThat(span.toSpanData().getAttributes().get(samplerAttributeKey)).isNotNull();
-      assertThat(span.toSpanData().getSpanContext().getTraceState())
-          .isEqualTo(TraceState.getDefault());
+      assertThat(span.toSpanData().getSpanContext().getTraceState()).isEqualTo(TraceState.empty());
     } finally {
       span.end();
     }

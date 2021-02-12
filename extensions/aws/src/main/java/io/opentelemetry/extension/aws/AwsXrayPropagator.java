@@ -185,7 +185,7 @@ public final class AwsXrayPropagator implements TextMapPropagator {
         traceId,
         spanId,
         isSampled ? TraceFlags.getSampled() : TraceFlags.getDefault(),
-        TraceState.getDefault());
+        TraceState.empty());
   }
 
   private static String parseTraceId(String xrayTraceId) {

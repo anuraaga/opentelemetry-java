@@ -48,7 +48,7 @@ public class RequestMarshalState {
   private static final String TRACE_ID = "7b2e170db4df2d593ddb4ddf2ddf2d59";
   private static final String SPAN_ID = "170d3ddb4d23e81f";
   private static final SpanContext SPAN_CONTEXT =
-      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault());
+      SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty());
 
   @Param({"16"})
   int numSpans;

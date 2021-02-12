@@ -245,7 +245,7 @@ public final class JaegerPropagator implements TextMapPropagator {
           otelTraceId,
           otelSpanId,
           ((flagsInt & 1) == 1) ? TraceFlags.getSampled() : TraceFlags.getDefault(),
-          TraceState.getDefault());
+          TraceState.empty());
     } catch (RuntimeException e) {
       logger.log(
           Level.FINE,

@@ -26,27 +26,27 @@ class ParentBasedSamplerTest {
   private final String traceId = idsGenerator.generateTraceId();
   private final String parentSpanId = idsGenerator.generateSpanId();
   private final SpanContext sampledSpanContext =
-      SpanContext.create(traceId, parentSpanId, TraceFlags.getSampled(), TraceState.getDefault());
+      SpanContext.create(traceId, parentSpanId, TraceFlags.getSampled(), TraceState.empty());
   private final Context sampledParentContext = Context.root().with(Span.wrap(sampledSpanContext));
   private final Context notSampledParentContext =
       Context.root()
           .with(
               Span.wrap(
                   SpanContext.create(
-                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.getDefault())));
+                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.empty())));
   private final Context invalidParentContext = Context.root().with(Span.getInvalid());
   private final Context sampledRemoteParentContext =
       Context.root()
           .with(
               Span.wrap(
                   SpanContext.createFromRemoteParent(
-                      traceId, parentSpanId, TraceFlags.getSampled(), TraceState.getDefault())));
+                      traceId, parentSpanId, TraceFlags.getSampled(), TraceState.empty())));
   private final Context notSampledRemoteParentContext =
       Context.root()
           .with(
               Span.wrap(
                   SpanContext.createFromRemoteParent(
-                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.getDefault())));
+                      traceId, parentSpanId, TraceFlags.getDefault(), TraceState.empty())));
 
   @Test
   void alwaysOn() {

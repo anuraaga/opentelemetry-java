@@ -74,7 +74,7 @@ public class MultiSpanExporterBenchmark {
                       "12345678876543211234567887654321",
                       "8765432112345678",
                       TraceFlags.getSampled(),
-                      TraceState.getDefault()))
+                      TraceState.empty()))
               .setName("noop")
               .setKind(SpanKind.CLIENT)
               .setStartEpochNanos(1)

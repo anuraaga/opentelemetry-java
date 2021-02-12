@@ -23,7 +23,7 @@ class DefaultTracerTest {
           "00000000000000000000000000000061",
           "0000000000000061",
           TraceFlags.getDefault(),
-          TraceState.getDefault());
+          TraceState.empty());
 
   @Test
   void spanBuilderWithName_NullName() {

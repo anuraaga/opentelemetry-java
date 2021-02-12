@@ -137,10 +137,10 @@ public class ZipkinSpanExporterEndToEndHttpTest {
   private static TestSpanData.Builder buildStandardSpan() {
     return TestSpanData.builder()
         .setSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()))
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()))
         .setParentSpanContext(
             SpanContext.create(
-                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()))
+                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.empty()))
         .setStatus(StatusData.ok())
         .setKind(SpanKind.SERVER)
         .setName(SPAN_NAME)

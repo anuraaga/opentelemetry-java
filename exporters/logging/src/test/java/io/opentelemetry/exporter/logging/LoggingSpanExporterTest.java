@@ -47,7 +47,7 @@ class LoggingSpanExporterTest {
                   "12345678876543211234567887654321",
                   "8765432112345678",
                   TraceFlags.getSampled(),
-                  TraceState.getDefault()))
+                  TraceState.empty()))
           .setStartEpochNanos(100)
           .setEndEpochNanos(100 + 1000)
           .setStatus(StatusData.ok())
@@ -73,7 +73,7 @@ class LoggingSpanExporterTest {
                   "12340000000043211234000000004321",
                   "8765000000005678",
                   TraceFlags.getSampled(),
-                  TraceState.getDefault()))
+                  TraceState.empty()))
           .setStartEpochNanos(500)
           .setEndEpochNanos(500 + 1001)
           .setStatus(StatusData.error())
@@ -126,7 +126,7 @@ class LoggingSpanExporterTest {
                     "12345678876543211234567887654321",
                     "8765432112345678",
                     TraceFlags.getSampled(),
-                    TraceState.getDefault()))
+                    TraceState.empty()))
             .setStartEpochNanos(epochNanos)
             .setEndEpochNanos(epochNanos + 1000)
             .setStatus(StatusData.ok())

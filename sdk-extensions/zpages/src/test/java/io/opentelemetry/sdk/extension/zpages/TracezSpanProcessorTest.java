@@ -33,10 +33,7 @@ class TracezSpanProcessorTest {
   private static final String SPAN_NAME = "span";
   private static final SpanContext SAMPLED_SPAN_CONTEXT =
       SpanContext.create(
-          TraceId.getInvalid(),
-          SpanId.getInvalid(),
-          TraceFlags.getSampled(),
-          TraceState.getDefault());
+          TraceId.getInvalid(), SpanId.getInvalid(), TraceFlags.getSampled(), TraceState.empty());
   private static final SpanContext NOT_SAMPLED_SPAN_CONTEXT = SpanContext.getInvalid();
   private static final StatusData SPAN_STATUS = StatusData.error();
 

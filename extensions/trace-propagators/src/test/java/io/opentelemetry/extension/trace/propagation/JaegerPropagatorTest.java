@@ -93,7 +93,7 @@ class JaegerPropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     jaegerPropagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -110,7 +110,7 @@ class JaegerPropagatorTest {
 
     jaegerPropagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()),
             Context.current()),
         null,
         (Setter<Map<String, String>>) (ignored, key, value) -> carrier.put(key, value));
@@ -126,7 +126,7 @@ class JaegerPropagatorTest {
     Map<String, String> carrier = new LinkedHashMap<>();
     jaegerPropagator.inject(
         withSpanContext(
-            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()),
+            SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()),
             Context.current()),
         carrier,
         setter);
@@ -144,7 +144,7 @@ class JaegerPropagatorTest {
             .with(
                 Span.wrap(
                     SpanContext.create(
-                        TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault())))
+                        TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty())))
             .with(Baggage.builder().put("foo", "bar").build());
 
     jaegerPropagator.inject(context, carrier, setter);
@@ -297,7 +297,7 @@ class JaegerPropagatorTest {
     assertThat(getSpanContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -311,7 +311,7 @@ class JaegerPropagatorTest {
     assertThat(getSpanContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getDefault(), TraceState.empty()));
   }
 
   @Test
@@ -329,7 +329,7 @@ class JaegerPropagatorTest {
     assertThat(getSpanContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                SHORT_TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                SHORT_TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -344,7 +344,7 @@ class JaegerPropagatorTest {
     assertThat(getSpanContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
   }
 
   @Test
@@ -359,7 +359,7 @@ class JaegerPropagatorTest {
     assertThat(getSpanContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(
             SpanContext.createFromRemoteParent(
-                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()));
+                TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()));
     assertThat(fromContext(jaegerPropagator.extract(Context.current(), carrier, getter)))
         .isEqualTo(Baggage.builder().put("foo", "bar").build());
   }

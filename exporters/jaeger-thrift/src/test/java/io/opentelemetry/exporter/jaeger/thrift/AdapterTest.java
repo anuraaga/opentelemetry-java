@@ -285,7 +285,7 @@ class AdapterTest {
         .setSpanContext(createSpanContext(TRACE_ID, SPAN_ID))
         .setParentSpanContext(
             SpanContext.create(
-                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.getDefault()))
+                TRACE_ID, PARENT_SPAN_ID, TraceFlags.getDefault(), TraceState.empty()))
         .setName("GET /api/endpoint")
         .setStartEpochNanos(MILLISECONDS.toNanos(startMs))
         .setEndEpochNanos(MILLISECONDS.toNanos(endMs))
@@ -301,7 +301,7 @@ class AdapterTest {
   }
 
   private static SpanContext createSpanContext(String traceId, String spanId) {
-    return SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.getDefault());
+    return SpanContext.create(traceId, spanId, TraceFlags.getDefault(), TraceState.empty());
   }
 
   @Nullable

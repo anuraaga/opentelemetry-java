@@ -94,8 +94,7 @@ class JaegerGrpcSpanExporterTest {
         TestSpanData.builder()
             .setHasEnded(true)
             .setSpanContext(
-                SpanContext.create(
-                    TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()))
+                SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()))
             .setName("GET /api/endpoint")
             .setStartEpochNanos(TimeUnit.MILLISECONDS.toNanos(startMs))
             .setEndEpochNanos(TimeUnit.MILLISECONDS.toNanos(endMs))
@@ -146,8 +145,7 @@ class JaegerGrpcSpanExporterTest {
         TestSpanData.builder()
             .setHasEnded(true)
             .setSpanContext(
-                SpanContext.create(
-                    TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.getDefault()))
+                SpanContext.create(TRACE_ID, SPAN_ID, TraceFlags.getSampled(), TraceState.empty()))
             .setName("GET /api/endpoint/1")
             .setStartEpochNanos(TimeUnit.MILLISECONDS.toNanos(startMs))
             .setEndEpochNanos(TimeUnit.MILLISECONDS.toNanos(endMs))
@@ -172,7 +170,7 @@ class JaegerGrpcSpanExporterTest {
             .setHasEnded(true)
             .setSpanContext(
                 SpanContext.create(
-                    TRACE_ID, SPAN_ID_2, TraceFlags.getSampled(), TraceState.getDefault()))
+                    TRACE_ID, SPAN_ID_2, TraceFlags.getSampled(), TraceState.empty()))
             .setName("GET /api/endpoint/2")
             .setStartEpochNanos(TimeUnit.MILLISECONDS.toNanos(startMs))
             .setEndEpochNanos(TimeUnit.MILLISECONDS.toNanos(endMs))
