@@ -50,7 +50,7 @@ jobs:
         with:
           ref: ${{ needs.prepare-release-branch.outputs.release-branch-name }}
           submodules: true
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2.3.0
         with:
           java-version: 11
       - name: Setup git name
