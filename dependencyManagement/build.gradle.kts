@@ -12,12 +12,12 @@ val dependencyVersions = hashMapOf<String, String>()
 rootProject.extra["versions"] = dependencyVersions
 
 val DEPENDENCY_BOMS = listOf(
-  "com.fasterxml.jackson:jackson-bom:2.12.4",
+  "com.fasterxml.jackson:jackson-bom:2.12.5",
   "com.google.guava:guava-bom:30.1.1-jre",
   "com.google.protobuf:protobuf-bom:3.17.3",
-  "com.linecorp.armeria:armeria-bom:1.9.2",
+  "com.linecorp.armeria:armeria-bom:1.11.0",
   "com.squareup.okhttp3:okhttp-bom:4.9.1",
-  "io.grpc:grpc-bom:1.39.0",
+  "io.grpc:grpc-bom:1.40.1",
   "io.zipkin.brave:brave-bom:5.13.3",
   "io.zipkin.reporter2:zipkin-reporter-bom:2.16.3",
   "org.junit:junit-bom:5.7.2",
@@ -47,7 +47,7 @@ val DEPENDENCY_SETS = listOf(
   ),
   DependencySet(
     "io.prometheus",
-    "0.11.0",
+    "0.12.0",
     listOf("simpleclient", "simpleclient_common", "simpleclient_httpserver")
   ),
   DependencySet(
@@ -62,26 +62,26 @@ val DEPENDENCY_SETS = listOf(
   ),
   DependencySet(
     "org.jeasy",
-    "4.3.0",
+    "5.0.0",
     listOf("easy-random-core", "easy-random-randomizers")
   ),
   DependencySet(
     "org.mockito",
-    "3.11.2",
+    "3.12.4",
     listOf("mockito-core", "mockito-junit-jupiter")
   )
 )
 
 val DEPENDENCIES = listOf(
   "com.github.stefanbirkner:system-rules:1.19.0",
-  "com.google.api.grpc:proto-google-common-protos:2.3.2",
+  "com.google.api.grpc:proto-google-common-protos:2.5.0",
   "com.google.code.findbugs:jsr305:3.0.2",
-  "com.google.code.gson:gson:2.8.7",
+  "com.google.code.gson:gson:2.8.8",
   "com.google.guava:guava-beta-checker:1.0",
   "com.lmax:disruptor:3.4.4",
   "com.squareup.okhttp3:okhttp:4.9.1",
   "com.sun.net.httpserver:http:20070405",
-  "com.tngtech.archunit:archunit-junit4:0.20.1",
+  "com.tngtech.archunit:archunit-junit4:0.21.0",
   "com.uber.nullaway:nullaway:0.9.2",
   "edu.berkeley.cs.jqf:jqf-fuzz:1.7",
   "eu.rekawek.toxiproxy:toxiproxy-java:2.1.4",
