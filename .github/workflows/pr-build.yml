@@ -50,8 +50,8 @@ jobs:
       - uses: gradle/gradle-build-action@v2
         with:
           arguments: |
-            build 
-            --stacktrace 
+            :sdk-extensions:jaeger-remote-sampler:check 
+            --stacktrace --no-build-cache
             ${{ matrix.coverage && 'jacocoTestReport' || '' }}
             -PtestJavaVersion=${{ matrix.test-java-version }}
             -Porg.gradle.java.installations.paths=${{ steps.setup-java-8.outputs.path }},${{ steps.setup-java-11.outputs.path }},${{ steps.setup-java-16.outputs.path }},${{ steps.setup-java-17.outputs.path }}
