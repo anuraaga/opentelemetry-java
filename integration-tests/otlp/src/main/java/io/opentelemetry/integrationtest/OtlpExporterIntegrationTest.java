@@ -71,16 +71,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -94,17 +94,12 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers(disabledWithoutDocker = true)
 abstract class OtlpExporterIntegrationTest {
 
-  private static final String COLLECTOR_IMAGE =
-      "ghcr.io/open-telemetry/opentelemetry-java/otel-collector";
-  private static final Integer COLLECTOR_OTLP_GRPC_PORT = 4317;
-  private static final Integer COLLECTOR_OTLP_HTTP_PORT = 4318;
-  private static final Integer COLLECTOR_HEALTH_CHECK_PORT = 13133;
+  private static final String COLLECTOR_IMAGE = "ghcr.io/anuraaga/otel-collector-test:latest";
+  private static final Integer COLLECTOR_OTLP_PORT = 4317;
   private static final Resource RESOURCE =
       Resource.getDefault().toBuilder()
           .put(ResourceAttributes.SERVICE_NAME, "integration test")
           .build();
-  private static final Logger LOGGER =
-      Logger.getLogger(OtlpExporterIntegrationTest.class.getName());
 
   private static OtlpGrpcServer grpcServer;
   private static GenericContainer<?> collector;
@@ -126,12 +121,9 @@ abstract class OtlpExporterIntegrationTest {
             .withClasspathResourceMapping(
                 "otel-config.yaml", "/otel-config.yaml", BindMode.READ_ONLY)
             .withCommand("--config", "/otel-config.yaml")
-            .withLogConsumer(
-                outputFrame ->
-                    LOGGER.log(Level.INFO, outputFrame.getUtf8String().replace("\n", "")))
-            .withExposedPorts(
-                COLLECTOR_OTLP_GRPC_PORT, COLLECTOR_OTLP_HTTP_PORT, COLLECTOR_HEALTH_CHECK_PORT)
-            .waitingFor(Wait.forHttp("/").forPort(COLLECTOR_HEALTH_CHECK_PORT));
+            .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("otel-collector")))
+            .withExposedPorts(COLLECTOR_OTLP_PORT)
+            .waitingFor(Wait.forLogMessage(".*Everything is ready.*", 1));
     collector.start();
   }
 
@@ -159,7 +151,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_GRPC_PORT))
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT))
             .setCompression(compression)
             .build();
 
@@ -175,7 +167,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_HTTP_PORT)
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT)
                     + "/v1/traces")
             .setCompression(compression)
             .build();
@@ -257,7 +249,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_GRPC_PORT))
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT))
             .setCompression(compression)
             .build();
 
@@ -273,7 +265,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_HTTP_PORT)
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT)
                     + "/v1/metrics")
             .setCompression(compression)
             .build();
@@ -350,7 +342,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_GRPC_PORT))
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT))
             .setCompression(compression)
             .build();
 
@@ -366,7 +358,7 @@ abstract class OtlpExporterIntegrationTest {
                 "http://"
                     + collector.getHost()
                     + ":"
-                    + collector.getMappedPort(COLLECTOR_OTLP_HTTP_PORT)
+                    + collector.getMappedPort(COLLECTOR_OTLP_PORT)
                     + "/v1/logs")
             .setCompression(compression)
             .build();

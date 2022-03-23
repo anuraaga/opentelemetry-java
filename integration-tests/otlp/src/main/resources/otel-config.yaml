@@ -1,19 +1,17 @@
-extensions:
-  health_check: {}
 receivers:
   otlp:
     protocols:
-      grpc:
       http:
+        endpoint: "0.0.0.0:4317"
 exporters:
   logging:
     logLevel: $LOGGING_EXPORTER_LOG_lEVEL
   otlp:
     endpoint: $OTLP_EXPORTER_ENDPOINT
+    compression: none
     tls:
       insecure: true
 service:
-  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp]
