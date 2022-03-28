@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package io.opentelemetry.sdk.metrics.view;
+package io.opentelemetry.sdk.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,6 +43,9 @@ class InstrumentSelectorTest {
             () -> InstrumentSelector.builder().setMeterSchemaUrl((Predicate<String>) null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("meterSchemaUrlFilter");
+    assertThatThrownBy(() -> InstrumentSelector.builder().build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Instrument selector must contain selection criteria");
   }
 
   @Test
